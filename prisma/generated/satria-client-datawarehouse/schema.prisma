@@ -1,0 +1,61 @@
+generator satriaClient {
+  provider = "prisma-client-js"
+  output   = "../prisma/generated/satria-client-datawarehouse"
+}
+
+datasource satria {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL_DATAWAREHOUSE")
+}
+
+model ALL_PO {
+  prNumber         String    @id(map: "PK_AllPro") @map("PR Number") @satria.VarChar(4000)
+  prType           String?   @map("PR Type") @satria.VarChar(4000)
+  prDate           DateTime? @map("PR Date") @satria.Date
+  prItem           String?   @map("PR Item") @satria.VarChar(4000)
+  qtyPr            Float?    @map("Qty PR") @satria.Float
+  uomQtyPr         String?   @map("UoM Qty PR") @satria.VarChar(4000)
+  prPlant          String?   @map("PR Plant") @satria.VarChar(4000)
+  prSloc           String?   @map("PR Sloc") @satria.VarChar(4000)
+  deliveryDate     DateTime? @map("Delivery Date") @satria.Date
+  trackingNumber   String?   @map("Tracking Number") @satria.VarChar(4000)
+  prRequisitioner  String?   @map("PR Requisitioner") @satria.VarChar(4000)
+  shortText        String?   @map("Short Text") @satria.VarChar(4000)
+  materialNumber   String?   @map("Material Number") @satria.VarChar(4000)
+  materialType     String?   @map("Material Type") @satria.VarChar(4000)
+  brand            String?   @map("Brand") @satria.VarChar(4000)
+  brandDescription String?   @map("Brand Description") @satria.VarChar(4000)
+  poNo             String?   @map("PO No") @satria.VarChar(4000)
+  poType           String?   @map("PO Type") @satria.VarChar(4000)
+  vendorCode       String?   @map("Vendor Code") @satria.VarChar(4000)
+  vendorName       String?   @map("Vendor Name") @satria.VarChar(4000)
+  poDate           DateTime? @map("PO Date") @satria.Date
+  paymentTerm      String?   @map("Payment Term") @satria.VarChar(4000)
+  poReleaseStatus  String?   @map("PO Release Status") @satria.VarChar(4000)
+  poItem           String?   @map("PO Item") @satria.VarChar(4000)
+  plantPo          String?   @map("Plant PO") @satria.VarChar(4000)
+  slocPo           String?   @map("Sloc PO") @satria.VarChar(4000)
+  qtyPo            Float?    @map("Qty PO") @satria.Float
+  uomQtyPo         String?   @map("UoM Qty PO") @satria.VarChar(4000)
+  openQtyPo        Float?    @map("Open Qty PO") @satria.Float
+  deliveryDatePo   DateTime? @map("Delivery Date PO") @satria.Date
+  delvCompleted    String?   @map("Delv Completed") @satria.VarChar(4000)
+  netPrice         Float?    @map("Net Price") @satria.Float
+  totalValue       Float?    @map("Total Value") @satria.Float
+  poTrackNo        String?   @map("PO Track No") @satria.VarChar(4000)
+  lastGr101Date    DateTime? @map("Last GR 101 Date") @satria.Date
+  gr101Qty         Int?      @map("GR 101 Qty") @satria.Int // Diperbaiki: Integer -> Int
+  lastGr103Date    DateTime? @map("Last GR 103 Date") @satria.Date
+  gr103Qty         Float?    @map("GR 103 Qty") @satria.Float
+  lastGr105Date    DateTime? @map("Last GR 105 Date") @satria.Date
+  gr105Qty         Float?    @map("GR 105 Qty") @satria.Real
+  lastGr107Date    DateTime? @map("Last GR 107 Date") @satria.Date
+  gr107Qty         Int?      @map("GR 107 Qty") @satria.Int // Diperbaiki: Integer -> Int
+  lastGr109Date    DateTime? @map("Last GR 109 Date") @satria.Date
+  gr109Qty         Float?    @map("GR 109 Qty") @satria.Real
+  lastIrDate       DateTime? @map("Last IR Date") @satria.Date
+  qtyIr            Float?    @map("Qty IR") @satria.Float
+  ammountLcIr      Float?    @map("Ammount_LC_IR") @satria.Float
+
+  @@map("ALL_PO")
+}

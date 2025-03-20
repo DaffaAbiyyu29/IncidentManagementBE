@@ -1,0 +1,57 @@
+generator satriaClient {
+  provider = "prisma-client-js"
+  output   = "../prisma/generated/satria-client-patriapowerapps"
+}
+
+datasource satria {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL_PATRIAPOWERAPPS")
+}
+
+model Process {
+  ID              Int             @id(map: "PK_Process")
+  UnitID          Int
+  MasterProcessID Int
+  Status          Int
+  PlanStartDate   DateTime        @satria.DateTime
+  PlanEndDate     DateTime?       @satria.DateTime
+  ActualStartDate DateTime?       @satria.DateTime
+  ActualEndDate   DateTime?       @satria.DateTime
+  IsHold          Boolean
+  HoldDate        DateTime?       @satria.DateTime
+  Created         DateTime        @satria.DateTime
+  CreatedBy       String          @satria.VarChar(100)
+  LastModified    DateTime        @satria.DateTime
+  LastModifiedBy  String          @satria.VarChar(100)
+  ProcessAssign   ProcessAssign[]
+}
+
+model ProcessActivity {
+  ID               Int           @id(map: "PK_ProcessActivity")
+  ProcessAssignID  Int
+  Status           Int
+  ReasonPauseID    Int?
+  ActivityDateTime DateTime      @satria.DateTime
+  ActualHours      Decimal?      @satria.Decimal(18, 2)
+  Created          DateTime      @satria.DateTime
+  CreatedBy        String        @satria.VarChar(100)
+  LastModified     DateTime      @satria.DateTime
+  LastModifiedBy   String        @satria.VarChar(100)
+  ProcessAssign    ProcessAssign @relation(fields: [ProcessAssignID], references: [ID], onUpdate: NoAction, map: "FK_ProcessActivity_ProcessAssign")
+}
+
+model ProcessAssign {
+  ID              Int               @id(map: "PK_ProcessAssign")
+  ProcessID       Int
+  UserID          String            @satria.UniqueIdentifier
+  EmployeeNumber  String?           @satria.VarChar(50)
+  Status          Int
+  Type            Int?
+  Created         DateTime          @satria.DateTime
+  CreatedBy       String            @satria.VarChar(100)
+  LastModified    DateTime          @satria.DateTime
+  LastModifiedBy  String            @satria.VarChar(100)
+  remark          String?           @satria.VarChar(255)
+  ProcessActivity ProcessActivity[]
+  Process         Process           @relation(fields: [ProcessID], references: [ID], onUpdate: NoAction, map: "FK_ProcessAssign_Process")
+}

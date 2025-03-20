@@ -5,7 +5,10 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "tsc",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "generate:main": "prisma generate --schema=prisma/satria.schema.prisma",
+    "generate:secondary": "prisma generate --schema=prisma/patriapowerapps.schema.prisma",
+    "generate:all": "npm run generate:main && npm run generate:secondary"
   },
   "keywords": [],
   "author": "",

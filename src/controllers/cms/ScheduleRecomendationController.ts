@@ -80,7 +80,7 @@ export const getAllScheduleRecomendation = async (
 
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    const serializedData = dataScheduleRecomendationData.map((item) => {
+    const serializedData = dataScheduleRecomendationData.map((item: any) => {
       const planStartDate = item.PlanStartDate
         ? new Date(item.PlanStartDate)
         : new Date();

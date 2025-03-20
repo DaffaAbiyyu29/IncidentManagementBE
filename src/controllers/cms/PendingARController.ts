@@ -85,7 +85,7 @@ export const getAllFBL5N = async (
     const today = new Date();
 
     // Konversi BigInt ke string dan format tanggal sebelum dikembalikan sebagai response
-    const serializedData = dataFBL5NData.map((item) => {
+    const serializedData = dataFBL5NData.map((item: any) => {
       const documentDate = item.DocumentDate
         ? new Date(item.DocumentDate)
         : new Date();
@@ -228,7 +228,7 @@ export const getAllFBL5NIncident = async (
 
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    const serializedData = dataFBL5NData.map((item) => {
+    const serializedData = dataFBL5NData.map((item: any) => {
       const documentDate = item.DocumentDate
         ? new Date(item.DocumentDate)
         : new Date();
