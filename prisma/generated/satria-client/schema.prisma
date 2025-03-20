@@ -1,0 +1,825 @@
+generator satriaClient {
+  provider = "prisma-client-js"
+  output   = "../prisma/generated/satria-client"
+}
+
+datasource satria {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL_SATRIA")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_AhmadFarhanAriMukti_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E4D059853") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  JUMLAHAKTUALBUKU   String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_AhmadFarhanAriMukti_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_AnanditaGadisValentineAS_Excel {
+  GUID           String  @id(map: "PK__03202200__15B69B8E9F5F4BC1") @satria.NVarChar(100)
+  title          String? @satria.NVarChar(Max)
+  gmd_name       String? @satria.NVarChar(Max)
+  edition        String? @satria.NVarChar(Max)
+  isbn_issn      String? @satria.NVarChar(Max)
+  publisher_name String? @satria.NVarChar(Max)
+  publish_year   String? @satria.NVarChar(Max)
+  collation      String? @satria.NVarChar(Max)
+  series_title   String? @satria.NVarChar(Max)
+  call_number    String? @satria.NVarChar(Max)
+  language_name  String? @satria.NVarChar(Max)
+  place_name     String? @satria.NVarChar(Max)
+  classification String? @satria.NVarChar(Max)
+  notes          String? @satria.NVarChar(Max)
+  image          String? @satria.NVarChar(Max)
+  sor            String? @satria.NVarChar(Max)
+  authors        String? @satria.NVarChar(Max)
+  topics         String? @satria.NVarChar(Max)
+  item_code      String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_AnanditaGadisValentineAS_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_BukuTidakAda_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E844FBECA") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_BukuTidakAda_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_DeniRiana_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8EFB3C8F14") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_DeniRiana_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_DiyahAyuSaraswati_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E0DF1CF7F") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_DiyahAyuSaraswati_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_FauzanFahrulRozy_Excel {
+  GUID             String  @id(map: "PK__03202200__15B69B8EA299E70B") @satria.NVarChar(100)
+  NO               String? @satria.NVarChar(Max)
+  JUDULBUKU        String? @satria.NVarChar(Max)
+  PENGARANG        String? @satria.NVarChar(Max)
+  PENERBIT         String? @satria.NVarChar(Max)
+  DESKRIPSI        String? @satria.NVarChar(Max)
+  KLASIFIKASI      String? @satria.NVarChar(Max)
+  EDISI            String? @satria.NVarChar(Max)
+  ISBN_ISSN        String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA           String? @satria.NVarChar(Max)
+  JUMLAHAKTUALBUKU String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_FauzanFahrulRozy_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_FikriAngganaPratama_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8ECB961800") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+  JUMLAH             String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_FikriAngganaPratama_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_IlmuTeknikFisikaTerapan_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E0CAFB999") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_IlmuTeknikFisikaTerapan_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_JuanRivaelSwawidjaya_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E9547AFF9") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_JuanRivaelSwawidjaya_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_KaryaUmumProgramKomputer_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E27E3B471") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_KaryaUmumProgramKomputer_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_ManajemenManajemenUmum_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E55ED65A4") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_ManajemenManajemenUmum_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_ManajemenPeriklananHubungan_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E75A50F04") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_ManajemenPeriklananHubungan_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_MerryDyahOctavia_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8EFBB1FB7D") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_MerryDyahOctavia_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_MuhammadDaffaAbiyyuSyaddad_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E6F4D0D9D") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+  JUMLAH             String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_MuhammadDaffaAbiyyuSyaddad_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_NaufalFadhlurrohman_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8EEC410AC6") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_NaufalFadhlurrohman_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_RavianaZahraFadhillah_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E5CECBC22") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_RavianaZahraFadhillah_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_RenanditaDyahAyuKintana_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E0BB212C9") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+  JUMLAH             String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_RenanditaDyahAyuKintana_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_SatrioMahdiiMuhammad_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E75E4D3B2") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_SatrioMahdiiMuhammad_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_SejarahUmumAsiaAsiaTenggar_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E038F2234") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_SejarahUmumAsiaAsiaTenggar_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_SejarahUmumAsiaJepang_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8ED34DF1F5") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_SejarahUmumAsiaJepang_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_TeguhEldiPratama_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E28CC04EA") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+  JUMLAH             String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_TeguhEldiPratama_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiKimia_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E66016AF3") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiKimia_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiKimiaMetalurgy_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8EBCADAC39") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiKimiaMetalurgy_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiKimiaTeknologiBaha_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E1041603E") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiKimiaTeknologiBaha_Excel")
+}
+
+model polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiTopikTopikKhusus_Excel {
+  GUID               String  @id(map: "PK__03202200__15B69B8E9EECCD08") @satria.NVarChar(100)
+  NO                 String? @satria.NVarChar(Max)
+  JUDULBUKU          String? @satria.NVarChar(Max)
+  PENGARANG          String? @satria.NVarChar(Max)
+  PENERBIT           String? @satria.NVarChar(Max)
+  DESKRIPSI          String? @satria.NVarChar(Max)
+  KLASIFIKASI        String? @satria.NVarChar(Max)
+  EDISI              String? @satria.NVarChar(Max)
+  INFODETAILSPESIFIK String? @satria.NVarChar(Max)
+  ISBN_ISSN          String? @map("ISBN/ISSN") @satria.NVarChar(Max)
+  BAHASA             String? @satria.NVarChar(Max)
+  TIPEKONTEN         String? @satria.NVarChar(Max)
+  JENISMEDIA         String? @satria.NVarChar(Max)
+  PERNYATAANDARI     String? @satria.NVarChar(Max)
+
+  @@map("0320220092polmanastraacidDocumentsDataBukuYangSudahDiinput_TeknologiTopikTopikKhusus_Excel")
+}
+
+model ariekusumawatipolytechnicastraacidDocumentsPerkuliahandanPKTAPKTAPKTA2425DosenPembimbingver11sharee_DAFTARDOSENPEMBIMB_Excel {
+  GUID             String  @id(map: "PK__ariekusu__15B69B8E6A04E030") @satria.NVarChar(100)
+  No_              String? @map("No.") @satria.NVarChar(Max)
+  NIM              String? @satria.NVarChar(Max)
+  Nama             String? @satria.NVarChar(Max)
+  ProgramStudi     String? @satria.NVarChar(Max)
+  TempatMagang     String? @satria.NVarChar(Max)
+  Kelompok         String? @satria.NVarChar(Max)
+  DosenPembimbing1 String? @satria.NVarChar(Max)
+  DosenPembimbing2 String? @satria.NVarChar(Max)
+}
+
+model ariekusumawatipolytechnicastraacidDocumentsPerkuliahandanPKTAPKTAPKTA2425DosenPembimbingver11sharee_FinalPenempatan_Excel {
+  GUID         String  @id(map: "PK__ariekusu__15B69B8E99EE1DBA") @satria.NVarChar(100)
+  No_          String? @map("No.") @satria.NVarChar(Max)
+  NIM          String? @satria.NVarChar(Max)
+  Nama         String? @satria.NVarChar(Max)
+  ProgramStudi String? @satria.NVarChar(Max)
+  TempatMagang String? @satria.NVarChar(Max)
+  Cabang       String? @satria.NVarChar(Max)
+  Kota         String? @satria.NVarChar(Max)
+}
+
+model ariekusumawatipolytechnicastraacidDocumentsPerkuliahandanPKTAPKTAPKTA2425DosenPembimbingver11sharee_NEWDAFTARDOSEN_Excel {
+  GUID             String  @id(map: "PK__ariekusu__15B69B8EF27E2228") @satria.NVarChar(100)
+  No_              String? @map("No.") @satria.NVarChar(Max)
+  NIM              String? @satria.NVarChar(Max)
+  Nama             String? @satria.NVarChar(Max)
+  ProgramStudi     String? @satria.NVarChar(Max)
+  TempatMagang     String? @satria.NVarChar(Max)
+  Kelompok         String? @satria.NVarChar(Max)
+  DosenPembimbing1 String? @satria.NVarChar(Max)
+  DosenPembimbing2 String? @satria.NVarChar(Max)
+}
+
+model ariekusumawatipolytechnicastraacidDocumentsPerkuliahandanPKTAPKTAPKTA2425DosenPembimbingver11sharee_Sheet1_Excel {
+  GUID          String  @id(map: "PK__ariekusu__15B69B8E047FE0C8") @satria.NVarChar(100)
+  No_           String? @map("No.") @satria.NVarChar(Max)
+  NIM           String? @satria.NVarChar(Max)
+  Nama          String? @satria.NVarChar(Max)
+  Cabang        String? @satria.NVarChar(Max)
+  ProgramStudi  String? @satria.NVarChar(Max)
+  PeriodeMagang String? @satria.NVarChar(Max)
+}
+
+model ContohSitus_CrossSiteList_List {
+  GUID   String  @id(map: "PK__ContohSi__15B69B8E12FF6B3E") @satria.NVarChar(100)
+  Harga  String? @satria.NVarChar(Max)
+  Barang String? @satria.NVarChar(Max)
+}
+
+model ContohSitusDokumenBerbagiFindingAHMMOTRC0392_Finding_Excel {
+  GUID     String  @id(map: "PK__ContohSi__15B69B8E1FF7DD11") @satria.NVarChar(100)
+  No       String? @satria.NVarChar(Max)
+  Item     String? @satria.NVarChar(Max)
+  DataTest String? @satria.NVarChar(Max)
+  Finding  String? @satria.NVarChar(Max)
+  Status   String? @satria.NVarChar(Max)
+  Notes    String? @satria.NVarChar(Max)
+}
+
+model ContohSitusDokumenBerbagiJadwalSeminarPKTAClone_AbsenPengumpulan_Excel {
+  GUID     String  @id(map: "PK__ContohSi__15B69B8ED612E2A8") @satria.NVarChar(100)
+  No       String? @satria.NVarChar(Max)
+  NIM      String? @satria.NVarChar(Max)
+  NAMA     String? @satria.NVarChar(Max)
+  Kelompok String? @satria.NVarChar(Max)
+  TTD      String? @satria.NVarChar(Max)
+  Note     String? @satria.NVarChar(Max)
+}
+
+model ContohSitusDokumenBerbagiJadwalSeminarPKTAClone_FormResponses1_Excel {
+  GUID                 String  @id(map: "PK__ContohSi__15B69B8E1BBFC688") @satria.NVarChar(100)
+  Timestamp            String? @satria.NVarChar(Max)
+  PertanyaanTanpaJudul String? @satria.NVarChar(Max)
+}
+
+model ContohSitusDokumenBerbagiJadwalSeminarPKTAClone_Jadwal_Excel {
+  GUID         String  @id(map: "PK__ContohSi__15B69B8E73894D5C") @satria.NVarChar(100)
+  No           String? @satria.NVarChar(Max)
+  NIM          String? @satria.NVarChar(Max)
+  NAMA         String? @satria.NVarChar(Max)
+  Kelompok     String? @satria.NVarChar(Max)
+  PB1          String? @satria.NVarChar(Max)
+  PBB2         String? @satria.NVarChar(Max)
+  JUDULPROJECT String? @satria.NVarChar(Max)
+  Penguji1     String? @satria.NVarChar(Max)
+  Penguji2     String? @satria.NVarChar(Max)
+  Tanggal      String? @satria.NVarChar(Max)
+  Jam          String? @satria.NVarChar(Max)
+  Ruangan      String? @satria.NVarChar(Max)
+  Status       String? @satria.NVarChar(Max)
+  Ket          String? @satria.NVarChar(Max)
+}
+
+model ContohSitusSiteAssetsFindingAHMMOTRC0392_Finding_Excel {
+  GUID     String  @id(map: "PK__ContohSi__15B69B8E60F263BC") @satria.NVarChar(100)
+  No       String? @satria.NVarChar(Max)
+  Item     String? @satria.NVarChar(Max)
+  DataTest String? @satria.NVarChar(Max)
+  Finding  String? @satria.NVarChar(Max)
+  Status   String? @satria.NVarChar(Max)
+  Notes    String? @satria.NVarChar(Max)
+}
+
+model ContohSitusSiteAssetsFindingAHMMOTRC0392_Lembar1_Excel {
+  GUID   String  @id(map: "PK__ContohSi__15B69B8E67578827") @satria.NVarChar(100)
+  No     String? @satria.NVarChar(Max)
+  Nama   String? @satria.NVarChar(Max)
+  Haarga String? @satria.NVarChar(Max)
+}
+
+model DataFBL5N {
+  ID                  BigInt    @id(map: "PK_DataFBL5N") @default(autoincrement())
+  GLAccount           String?   @satria.VarChar(50)
+  Reference           String?   @satria.VarChar(50)
+  Assignment          String?   @satria.VarChar(50)
+  DocumentNumber      String?   @satria.VarChar(50)
+  DocumentType        String?   @satria.VarChar(50)
+  PostingDate         DateTime? @satria.Date
+  ClearingDate        DateTime? @satria.Date
+  DocumentDate        DateTime? @satria.Date
+  NetDueDate          DateTime? @satria.Date
+  SpecialGLInd        String?   @satria.VarChar(50)
+  BusinessArea        String?   @satria.VarChar(50)
+  Plant               String?   @satria.VarChar(50)
+  ProfitCenter        String?   @satria.VarChar(50)
+  Account             String?   @satria.VarChar(50)
+  CustomerName        String?   @satria.VarChar(50)
+  AmountDocCurr       Float?
+  DocumentCurrency    String?   @satria.VarChar(50)
+  AmountLocalCurrency Float?
+  LocalCurrency       String?   @satria.VarChar(50)
+  ReverseClearing     String?   @satria.VarChar(50)
+  PostingKey          String?   @satria.VarChar(50)
+  DebitCreditInd      String?   @satria.VarChar(50)
+  ClearingDocument    String?   @satria.VarChar(50)
+  Username            String?   @satria.VarChar(50)
+  Text                String?   @satria.VarChar(50)
+  CompanyCode         String?   @satria.VarChar(50)
+  created_at          DateTime? @satria.DateTime
+  updated_at          DateTime  @satria.DateTime
+}
+
+model DataVF04 {
+  ID                  BigInt    @id(map: "PK_DataVF04") @default(autoincrement())
+  BillCategory        String?   @satria.VarChar(50)
+  SalesOrg            BigInt?
+  BillDate            DateTime? @satria.Date
+  SoldToParty         String?   @satria.VarChar(50)
+  BillType            String?   @satria.VarChar(50)
+  Country             String?   @satria.VarChar(50)
+  SalesDocument       BigInt?
+  DistributionChannel BigInt?
+  Division            BigInt?
+  DocCategory         String?   @satria.VarChar(50)
+  Address             BigInt?
+  NameSoldToParty     String?   @satria.VarChar(150)
+  LocSoldToParty      String?   @satria.VarChar(150)
+  SortTerm            String?   @satria.VarChar(50)
+  ItemsRead           String?   @satria.VarChar(50)
+  Counter             String?   @satria.VarChar(50)
+  ShippingPoint       String?   @satria.VarChar(50)
+  PODStatus           String?   @satria.VarChar(50)
+  NetValue            String?   @satria.VarChar(50)
+  DocCurrency         String?   @satria.VarChar(50)
+  SDDocumentType      String?   @satria.VarChar(50)
+  NameSDType          String?   @satria.VarChar(50)
+  BDRSrcDoc           String?   @satria.VarChar(50)
+  RefSys              String?   @satria.VarChar(50)
+  DraftMode           String?   @satria.VarChar(50)
+  DBDRef              String?   @satria.VarChar(50)
+  SolutionOrder       String?   @satria.VarChar(50)
+  BillDate2           DateTime? @satria.Date
+  BillType2           String?   @satria.VarChar(50)
+  Groups              String?   @satria.VarChar(50)
+  PONumber            String?   @satria.VarChar(50)
+  ShippingPointDesc   String?   @satria.VarChar(50)
+  SOPOAmount          Float?
+  Exrate              Float?
+  created_at          DateTime? @satria.DateTime
+  updated_at          DateTime? @satria.DateTime
+}
+
+model excelBaseUrl {
+  id         Int          @id @default(autoincrement())
+  guid       String       @unique
+  excelName  String?
+  url        String?      @unique
+  created_at DateTime
+  updated_at DateTime
+  excelSheet excelSheet[]
+}
+
+model excelSheet {
+  id           Int          @id @default(autoincrement())
+  guid         String
+  sheetName    String?
+  created_at   DateTime
+  updated_at   DateTime
+  excelBaseUrl excelBaseUrl @relation(fields: [guid], references: [guid], onDelete: Cascade)
+}
+
+model log {
+  id         Int      @id @default(autoincrement())
+  guid       String?  @unique
+  name       String?
+  type       String?
+  row        Int?
+  created_at DateTime
+  updated_at DateTime
+}
+
+model pppppp2_CrossSiteList_List {
+  GUID  String  @id(map: "PK__pppppp2___15B69B8EB1949673") @satria.NVarChar(100)
+  Judul String? @satria.NVarChar(Max)
+}
+
+model pppppp2DokumenBerbagiRundownacarafamgath_Sheet1_Excel {
+  GUID            String  @id(map: "PK__pppppp2D__15B69B8E72F5C91B") @satria.NVarChar(100)
+  No              String? @satria.NVarChar(Max)
+  Waktu           String? @satria.NVarChar(Max)
+  Kegiatan        String? @satria.NVarChar(Max)
+  PenanggungJawab String? @satria.NVarChar(Max)
+}
+
+model Schedule_Recommendation {
+  PN                           String    @id(map: "PK_Schedule_Recommendation") @satria.NVarChar(400)
+  PRO                          BigInt?
+  Product                      String?   @satria.NVarChar(4000)
+  ProductGroup                 String?   @satria.NVarChar(4000)
+  Process                      String?   @satria.NVarChar(4000)
+  Dependency                   String?   @satria.NVarChar(4000)
+  Maksimal_Produksi_per_Base   Float?    @map("Maksimal Produksi per-Base")
+  ProcessOrder                 String?   @satria.NVarChar(4000)
+  PlanStartDate                DateTime?
+  PlanEndDate                  DateTime?
+  Start_Date                   DateTime? @map("Start Date")
+  End_Date                     DateTime? @map("End Date")
+  Estimated_Material_Arrived   DateTime? @map("Estimated Material Arrived")
+  Lead_Time_Process_Standar    Float?    @map("Lead Time Process Standar")
+  Lead_Time_Estimation_Process Float?    @map("Lead Time Estimation Process")
+  Process_Status               String?   @map("Process Status") @satria.NVarChar(4000)
+  MPSDueDate                   DateTime?
+  Finished_Prediction          DateTime? @map("Finished Prediction")
+  Status_Unit_Delivery         String?   @map("Status Unit Delivery") @satria.NVarChar(4000)
+  Capacity_Utilization         Float?    @map("Capacity Utilization")
+  Status_Capacity              String?   @map("Status Capacity") @satria.NVarChar(4000)
+  Status_Material              String?   @map("Status Material") @satria.NVarChar(4000)
+}
+
+model siteRoute {
+  id         Int      @id @default(autoincrement())
+  guid       String   @unique
+  baseUrl    String?
+  siteName   String?  @unique
+  url        String?  @unique
+  created_at DateTime
+  updated_at DateTime
+}
+
+model sysdiagrams {
+  name         String @satria.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B61632F454B") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model TesSitus_ContohList2_List {
+  GUID        String  @id(map: "PK__TesSitus__15B69B8E2857ABCC") @satria.NVarChar(100)
+  Namabarang_ String? @map("Namabarang*") @satria.NVarChar(Max)
+  Judul       String? @satria.NVarChar(Max)
+}
+
+model TesSitus_Jadwalacara_List {
+  GUID                   String    @id(map: "PK__TesSitus__15B69B8EA9202053") @satria.NVarChar(100)
+  Namasesi               String?   @satria.NVarChar(Max)
+  Kodesesi               String?   @satria.NVarChar(Max)
+  Tipesesi               String?   @satria.NVarChar(Max)
+  Deskripsi              String?   @satria.NVarChar(Max)
+  Tanggaldanwaktumulai   DateTime? @satria.DateTime
+  Tanggaldanwaktuselesai DateTime? @satria.DateTime
+  Durasi                 String?   @satria.NVarChar(Max)
+  Kapasitas              String?   @satria.NVarChar(Max)
+  Lokasi                 String?   @satria.NVarChar(Max)
+  Catatan                String?   @satria.NVarChar(Max)
+}
+
+model TesSitus_tesData_List {
+  GUID              String                    @id(map: "PK__TesSitus__15B69B8ED51A61D9") @satria.NVarChar(100)
+  Waktu             String?                   @satria.NVarChar(Max)
+  Kegiatan          String?                   @satria.NVarChar(Max)
+  PenanggungJawab   String?                   @satria.NVarChar(Max)
+  Nomor             String?                   @satria.NVarChar(Max)
+  MultiLine         String?                   @satria.NVarChar(Max)
+  Numeric           Float?                    @satria.Real
+  Date              DateTime?                 @satria.DateTime
+  Choice            String?                   @satria.NVarChar(Max)
+  Person            String?                   @satria.NVarChar(Max)
+  Boolean           String?                   @satria.NVarChar(Max)
+  Hyperlink         String?                   @satria.NVarChar(Max)
+  Currency          Float?                    @satria.Money
+  Locations         Unsupported("geography")?
+  Picture           String?                   @satria.NVarChar(Max)
+  Rating            Float?                    @satria.Real
+  Penilaianpengguna String?                   @satria.NVarChar(Max)
+}
+
+model TesSitusDokumenBerbagiTemplateImportBuku_Template_Excel {
+  GUID        String  @id(map: "PK__TesSitus__15B69B8E9296842B") @satria.NVarChar(100)
+  Judul       String? @satria.NVarChar(Max)
+  Pengarang   String? @satria.NVarChar(Max)
+  TahunTerbit String? @satria.NVarChar(Max)
+  Stok        String? @satria.NVarChar(Max)
+  Gambar      String? @satria.NVarChar(Max)
+}
+
+model TesSitusppppFindingAHMMOTRC0392_Finding_Excel {
+  GUID     String  @id(map: "PK__TesSitus__15B69B8ECBD87588") @satria.NVarChar(100)
+  No       String? @satria.NVarChar(Max)
+  Item     String? @satria.NVarChar(Max)
+  DataTest String? @satria.NVarChar(Max)
+  Finding  String? @satria.NVarChar(Max)
+  Status   String? @satria.NVarChar(Max)
+  Notes    String? @satria.NVarChar(Max)
+}
+
+model users {
+  id         Int      @id @default(autoincrement())
+  guid       String   @unique
+  name       String   @unique
+  username   String   @unique
+  password   String
+  created_at DateTime
+  updated_at DateTime
+}
