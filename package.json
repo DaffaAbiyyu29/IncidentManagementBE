@@ -6,9 +6,14 @@
     "start": "node dist/server.js",
     "build": "tsc",
     "dev": "nodemon",
-    "generate:main": "prisma generate --schema=prisma/satria.schema.prisma",
-    "generate:secondary": "prisma generate --schema=prisma/patriapowerapps.schema.prisma",
-    "generate:all": "npm run generate:main && npm run generate:secondary"
+    "pull:satria": "prisma db pull --schema=prisma/satria.schema.prisma",
+    "pull:patriapowerapps": "prisma db pull --schema=prisma/patriapowerapps.schema.prisma",
+    "pull:datawarehouse": "prisma db pull --schema=prisma/datawarehouse.schema.prisma",
+    "generate:satria": "prisma generate --schema=prisma/satria.schema.prisma",
+    "generate:patriapowerapps": "prisma generate --schema=prisma/patriapowerapps.schema.prisma",
+    "generate:datawarehouse": "prisma generate --schema=prisma/datawarehouse.schema.prisma",
+    "pull:all": "npm run generate:satria && npm run generate:patriapowerapps && npm run generate:datawarehouse",
+    "generate:all": "npm run generate:satria && npm run generate:patriapowerapps && npm run generate:datawarehouse"
   },
   "keywords": [],
   "author": "",
