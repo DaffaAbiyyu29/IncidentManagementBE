@@ -52,6 +52,11 @@ const router = express.Router();
 //   }
 // );
 
+// -----------------------------------------------------------------------------------------  MANHOUR UTILIZATION
+router.get("/process-mh", async (req: Request, res: Response) => {
+  await ProcessController.getAllProcessMH(req, res);
+});
+
 // -----------------------------------------------------------------------------------------  ACCOUNT RECEIVABLE
 router.get("/pending-ar", async (req: Request, res: Response) => {
   await PendingARController.getAllFBL5N(req, res);

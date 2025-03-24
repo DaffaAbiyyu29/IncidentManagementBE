@@ -55,3 +55,143 @@ model ProcessAssign {
   ProcessActivity ProcessActivity[]
   Process         Process           @relation(fields: [ProcessID], references: [ID], onUpdate: NoAction, map: "FK_ProcessAssign_Process")
 }
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwPRO_2 {
+  ID             Int
+  Number         String   @satria.VarChar(100)
+  ProductID      Int
+  Quantity       Int
+  DueDate        DateTime @satria.DateTime
+  Created        DateTime @satria.DateTime
+  CreatedBy      String   @satria.VarChar(100)
+  LastModified   DateTime @satria.DateTime
+  LastModifiedBy String   @satria.VarChar(100)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwProcess {
+  ProcessID              Int
+  UnitID                 Int
+  ProcessStatus          String?   @satria.VarChar(8)
+  ProcessPlanStartDate   DateTime? @satria.Date
+  ProcessPlanEndDate     DateTime? @satria.Date
+  ProcessPlanDuration    Int?
+  ProcessActualStartDate DateTime? @satria.Date
+  ProcessActualEndDate   DateTime? @satria.Date
+  ProcessActualDuration  Int?
+  MasterProcessName      String?   @satria.VarChar(100)
+  StandardMH             Decimal?  @satria.Decimal(18, 4)
+  ProcessGroupName       String?   @satria.VarChar(100)
+  ProcessDelayInDay      Int?
+  ProcessOrder           Int?
+  LastModified           DateTime  @satria.DateTime
+  MasterProcessID        Int
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwProcessActivity {
+  atasan                     String   @satria.VarChar(100)
+  EmployeeNumber             String?  @satria.VarChar(50)
+  ActivityDateTime           DateTime @satria.DateTime
+  ProcessActivityID          Int
+  ProcessAssignID            Int
+  ProcessActivityName        String   @satria.VarChar(100)
+  ProcessActivityStatus      String?  @satria.VarChar(17)
+  ProcessActivityReasonPause String   @satria.VarChar(100)
+  ActualHoursNonProductive   Int?
+  ProcessActivityActualHours Decimal? @satria.Decimal(18, 2)
+  ProcessActivityDateTime    DateTime @satria.DateTime
+  LastModifiedBy             String   @satria.VarChar(100)
+  LastModified               DateTime @satria.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwProcessAssign2All {
+  ID                  Int
+  ProcessID           Int
+  UnitID              Int?
+  LeaderName          String    @satria.VarChar(100)
+  OperatorName        String?   @satria.VarChar(100)
+  NRP                 String?   @satria.VarChar(100)
+  TglAssign           DateTime  @satria.DateTime
+  ProcessassignStatus String?   @satria.VarChar(17)
+  Startassign         String?   @satria.VarChar(10)
+  Stopassign          String?   @satria.VarChar(4)
+  ProcessAssignType   String?   @satria.VarChar(12)
+  LastModified        DateTime  @satria.DateTime
+  lastStart           DateTime? @satria.DateTime
+  lastStop            DateTime? @satria.DateTime
+  remark              String?   @satria.VarChar(255)
+  IsActive            Boolean?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwProcessGroup {
+  UnitID                      Int
+  ProcessGroupNameSort        Int?
+  ProcessGroupName            String?   @satria.VarChar(100)
+  ProcessGroupPlanStartDate   DateTime? @satria.Date
+  ProcessGroupPlanEndDate     DateTime? @satria.Date
+  ProcessGroupPlanDuration    Int?
+  ProcessGroupActualStartDate DateTime? @satria.Date
+  ProcessGroupActualEndDate   DateTime? @satria.Date
+  ProcessGroupActualDuration  Int?
+  ProcessGroupDelayInDay      Int?
+  LastModified                DateTime? @satria.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwProduct {
+  ProductID              Int
+  ProductGroupID         Int
+  ProductName            String   @satria.VarChar(100)
+  ProductPN              String   @satria.VarChar(100)
+  ProductTotalDay        Int?
+  ProductSubGroupName    String   @satria.VarChar(100)
+  ProductSubGroupSAPCode String   @satria.VarChar(10)
+  ProductStandardHours   Decimal? @satria.Decimal(38, 4)
+  LastModified           DateTime @satria.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwUnit {
+  UnitID                         Int
+  PROID                          Int
+  ProductID                      Int
+  UnitSerialNumber               String    @satria.VarChar(100)
+  UnitChasisNumber               String?   @satria.VarChar(100)
+  UnitDueDate                    DateTime  @satria.DateTime
+  UnitPlanStartDate              DateTime? @satria.Date
+  UnitPlanEndDate                DateTime? @satria.Date
+  UnitPlanDuration               Int?
+  UnitActualStartDate            DateTime? @satria.Date
+  UnitActualEndDate              DateTime? @satria.Date
+  UnitActualDuration             Int?
+  Unit_Status                    String    @satria.VarChar(16)
+  UnitMPSDueDate                 DateTime? @satria.DateTime
+  UnitActualDeliveryDate         DateTime? @satria.Date
+  UnitActualHoursCompleted       Decimal?  @satria.Decimal(38, 6)
+  UnitDelayInDay                 Int?
+  SOUnitprice                    Decimal?  @satria.Decimal(18, 0)
+  SalesOrderID                   Int?
+  UnitProcessLastStatus          String    @satria.VarChar(10)
+  UnitProcessLastActualStartDate DateTime? @satria.DateTime
+  UnitProcessLastPlanStartDate   DateTime? @satria.DateTime
+  IsHold                         Boolean
+  LastModified                   DateTime  @satria.DateTime
+
+  @@ignore
+}
