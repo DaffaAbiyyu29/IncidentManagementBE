@@ -57,6 +57,28 @@ router.get("/process-mh", async (req: Request, res: Response) => {
   await ProcessController.getAllProcessMH(req, res);
 });
 
+router.get("/process-mh-unit", async (req: Request, res: Response) => {
+  await ProcessController.getAllDataUnitMH(req, res);
+});
+
+router.get("/process-mh-unit-process", async (req: Request, res: Response) => {
+  await ProcessController.getAllDataUnitMHProcess(req, res);
+});
+
+router.get(
+  "/process-mh-unit-process-assign",
+  async (req: Request, res: Response) => {
+    await ProcessController.getAllDataUnitMHProcessAssign(req, res);
+  }
+);
+
+router.get(
+  "/process-mh-unit-process-activity",
+  async (req: Request, res: Response) => {
+    await ProcessController.getAllDataUnitMHProcessActivity(req, res);
+  }
+);
+
 // -----------------------------------------------------------------------------------------  ACCOUNT RECEIVABLE
 router.get("/pending-ar", async (req: Request, res: Response) => {
   await PendingARController.getAllFBL5N(req, res);

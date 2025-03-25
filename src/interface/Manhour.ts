@@ -1,5 +1,6 @@
 export interface Manhour {
   ProcessID: number;
+  UnitID: number;
   ProcessAssignID: number;
   ProcessActivityID: number;
   ProcessGroupName: string;
@@ -14,11 +15,11 @@ export interface Manhour {
   ProcessActualDuration: number | null;
   ProcessDelayInDay: number | null;
   StandardMH: number | null;
+  TglAssign: string | null;
+  OperatorName: string;
   StatusAssign: string;
   TypeAssign: string;
   StatusActivity: string;
   ActivityDateTime: string | null;
   ActualHours: number | null;
-  ManHour: number | null;
-  PercentageUsage: number | null;
 }

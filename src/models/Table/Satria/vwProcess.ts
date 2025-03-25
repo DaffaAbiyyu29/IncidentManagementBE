@@ -11,7 +11,8 @@ export const vwProcess = {
     return prisma.$queryRaw<any[]>`
       SELECT DISTINCT
         vp.ProcessID,
-        pa.ID AS ProcessAssignID,
+        vp.UnitID,
+        vpa.ID AS ProcessAssignID,
         pac.ID AS ProcessActivityID,
         vp.ProcessGroupName,
         vp.MasterProcessName,
@@ -25,14 +26,17 @@ export const vwProcess = {
         vp.ProcessActualDuration,
         vp.ProcessDelayInDay,
         CAST(vp.StandardMH AS DECIMAL(18,4)) AS StandardMH,
-        pa.Status AS StatusAssign,
-        pa.Type AS TypeAssign,
+        vpa.TglAssign,
+        vpa.OperatorName,
+        vpa.ProcessassignStatus AS StatusAssign,
+        vpa.ProcessAssignType AS TypeAssign,
         pac.Status AS StatusActivity,
         pac.ActivityDateTime,
         CAST(pac.ActualHours AS DECIMAL(18,4)) AS ActualHours
       FROM vwProcess vp
-      INNER JOIN ProcessAssign pa ON vp.ProcessID = pa.ProcessID
-      INNER JOIN ProcessActivity pac ON pa.ID = pac.ProcessAssignID
+      JOIN vwProcessAssign2All vpa ON vp.ProcessID = vpa.ProcessID
+      JOIN ProcessActivity pac ON vpa.ID = pac.ProcessAssignID
     `;
   },
 };
+
