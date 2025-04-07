@@ -61,6 +61,10 @@ router.get("/process-mh-unit", async (req: Request, res: Response) => {
   await ProcessController.getAllDataUnitMH(req, res);
 });
 
+router.get("/process-mh-unit-count", async (req: Request, res: Response) => {
+  await ProcessController.getAllDataUnitMHCountByYear(req, res);
+});
+
 router.get("/process-mh-unit-process", async (req: Request, res: Response) => {
   await ProcessController.getAllDataUnitMHProcess(req, res);
 });
@@ -84,6 +88,10 @@ router.get("/pending-ar", async (req: Request, res: Response) => {
   await PendingARController.getAllFBL5N(req, res);
 });
 
+router.get("/pending-ar-count", async (req: Request, res: Response) => {
+  await PendingARController.getFBL5NCountByYear(req, res);
+});
+
 router.get("/pending-ar-incident", async (req: Request, res: Response) => {
   await PendingARController.getAllFBL5NIncident(req, res);
 });
@@ -93,10 +101,21 @@ router.get("/pending-billing", async (req: Request, res: Response) => {
   await PendingBillingController.getAllVF04(req, res);
 });
 
+router.get("/pending-billing-count", async (req: Request, res: Response) => {
+  await PendingBillingController.getVF04CountByYear(req, res);
+});
+
 // -----------------------------------------------------------------------------------------  DELAY OPERATION
 router.get("/schedule-recommendation", async (req: Request, res: Response) => {
   await ScheduleRecomendation.getAllScheduleRecomendation(req, res);
 });
+
+router.get(
+  "/schedule-recommendation-count",
+  async (req: Request, res: Response) => {
+    await ScheduleRecomendation.getScheduleRecomendationCountByYear(req, res);
+  }
+);
 
 // -----------------------------------------------------------------------------------------  PROCESS
 router.get("/process", async (req: Request, res: Response) => {
@@ -116,6 +135,10 @@ router.get("/process-assign", async (req: Request, res: Response) => {
 // -----------------------------------------------------------------------------------------  VENDOR PERFORMANCE
 router.get("/vendor-performance", async (req: Request, res: Response) => {
   await AllPoController.getAllVendor(req, res);
+});
+
+router.get("/vendor-performance-count", async (req: Request, res: Response) => {
+  await AllPoController.getVendorCountByYear(req, res);
 });
 
 // -----------------------------------------------------------------------------------------  SUBCONT PERFORMANCE

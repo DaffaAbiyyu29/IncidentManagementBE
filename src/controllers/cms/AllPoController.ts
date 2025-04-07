@@ -4,7 +4,10 @@ import { AllPo } from "../../models/Table/Satria/AllPo";
 import { formattedDate } from "../../helpers/formattedDate";
 
 // View all vendor
-export const getAllVendor = async (req: Request, res: Response): Promise<void> => {
+export const getAllVendor = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const {
       page = "1",
@@ -170,7 +173,65 @@ export const getAllVendor = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-export const getAllSubcont = async (req: Request, res: Response): Promise<void> => {
+export const getVendorCountByYear = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { year = String(new Date().getFullYear()) } = req.query;
+
+    const startDate = new Date(`${year}-01-01`);
+
+    const monthlyCounts = [];
+    let totalCount = 0;
+
+    for (let month = 0; month < 12; month++) {
+      const monthStartDate = new Date(startDate);
+      monthStartDate.setMonth(month);
+
+      const monthEndDate = new Date(startDate);
+      monthEndDate.setMonth(month + 1);
+
+      const count = await AllPo.count({
+        where: {
+          // ClearingDate: null,
+          lastIrDate: {
+            gte: monthStartDate,
+            lt: monthEndDate,
+          },
+        },
+      });
+
+      if (count > 0) {
+        monthlyCounts.push({
+          count: count,
+          month: month + 1,
+        });
+        totalCount += count;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil data PO",
+      data: {
+        data: monthlyCounts,
+        totalCount: totalCount,
+      },
+    });
+  } catch (err) {
+    console.error("Error menghitung jumlah data PO :", err);
+    res.status(500).json({
+      success: false,
+      message: "Error menghitung jumlah data PO",
+    });
+  }
+};
+
+export const getAllSubcont = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const {
       page = "1",

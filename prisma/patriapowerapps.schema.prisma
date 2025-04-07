@@ -1,6 +1,7 @@
 generator satriaClient {
-  provider = "prisma-client-js"
-  output   = "../prisma/generated/satria-client-patriapowerapps"
+  provider        = "prisma-client-js"
+  output          = "../prisma/generated/satria-client-patriapowerapps"
+  previewFeatures = ["views"]
 }
 
 datasource satria {
@@ -192,6 +193,28 @@ model vwUnit {
   UnitProcessLastPlanStartDate   DateTime? @satria.DateTime
   IsHold                         Boolean
   LastModified                   DateTime  @satria.DateTime
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model vwProductGroup {
+  ProductGroupID          Int
+  ProductGroupName        String    @satria.VarChar(100)
+  ProductGroupDescription String    @satria.VarChar(Max)
+  ProductGroupCapacity    Int?
+  ProductGroupStartMonth  DateTime? @satria.DateTime
+  LastModified            DateTime  @satria.DateTime
+
+  @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view View_1 {
+  ProcessID         Int
+  ProcessAssignID   Int
+  ProcessActivityID Int
+  ActualHours       Decimal? @satria.Decimal(18, 2)
 
   @@ignore
 }

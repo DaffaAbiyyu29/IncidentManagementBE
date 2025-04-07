@@ -1,9 +1,12 @@
 export interface IDataUnit {
-  UnitID: number;
-  UnitSerialNumber: string;
-  ProcessCount: number;
-  StandardMH: number;
-  ActualHours: number;
+  proNumber: string;
+  unitSerialNumber: string;
+  productGroupName: string;
+  productName: string;
+  processCount: number;
+  standardMH: number;
+  actualHours: number;
+  mpsDueDate: string;
 }
 
 export interface IDataProcess {

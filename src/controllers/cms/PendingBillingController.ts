@@ -145,6 +145,60 @@ export const getAllVF04 = async (
   }
 };
 
+export const getVF04CountByYear = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { year = String(new Date().getFullYear()) } = req.query;
+
+    const startDate = new Date(`${year}-01-01`);
+
+    const monthlyCounts = [];
+    let totalCount = 0;
+
+    for (let month = 0; month < 12; month++) {
+      const monthStartDate = new Date(startDate);
+      monthStartDate.setMonth(month);
+
+      const monthEndDate = new Date(startDate);
+      monthEndDate.setMonth(month + 1);
+
+      const count = await VF04.count({
+        where: {
+          // ClearingDate: null,
+          BillDate: {
+            gte: monthStartDate,
+            lt: monthEndDate,
+          },
+        },
+      });
+
+      if (count > 0) {
+        monthlyCounts.push({
+          count: count,
+          month: month + 1,
+        });
+        totalCount += count;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil data Billing",
+      data: {
+        data: monthlyCounts,
+        totalCount: totalCount,
+      },
+    });
+  } catch (err) {
+    console.error("Error menghitung jumlah data Billing :", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Error menghitung jumlah data Billing" });
+  }
+};
+
 // // View dataVF04 by ID
 // export const getVF04ById = async (
 //   req: Request,

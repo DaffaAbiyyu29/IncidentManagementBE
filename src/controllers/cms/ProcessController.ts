@@ -5,8 +5,11 @@ import { vwProcess } from "../../models/Table/Satria/vwProcess";
 import { getCurrentWIBDate } from "../../helpers/timeHelper";
 import { formattedDate } from "../../helpers/formattedDate";
 import { Manhour } from "../../interface/Manhour";
+import { IDataUnit } from "../../interface/MHUtil";
+import { IDataCount } from "../../interface/CountData";
 import {
   DataUnit,
+  DataUnitCountByYear,
   DataProcess,
   DataProcessAssign,
   DataProcessActivity,
@@ -265,7 +268,9 @@ export const getAllDataUnitMH = async (
       page = "1",
       limit = "10",
       search = "",
-      sort = "UnitID",
+      sort = "mpsDueDate",
+      month = String(new Date().getMonth() + 1).padStart(2, "0"),
+      year = String(new Date().getFullYear()),
       order = "asc",
     } = req.query as Record<string, string>;
 
@@ -274,62 +279,35 @@ export const getAllDataUnitMH = async (
     const skip = (pageNumber - 1) * pageSize;
     const sortOrder = order.toLowerCase() === "desc" ? -1 : 1;
 
-    const Unit = await DataUnit.findMany();
+    // Ambil data dari database
+    const Unit = await DataUnit.findMany(Number(month), Number(year));
 
+    // Jika data kosong, return response tanpa error
     if (!Array.isArray(Unit) || Unit.length === 0) {
-      throw new Error("Invalid or empty data from database");
+      res.status(200).json({
+        success: true,
+        message: "Data unit tidak ditemukan",
+        data: {
+          data: [],
+          totalPages: 0,
+          currentPage: pageNumber,
+          totalItems: 0,
+        },
+      });
+      return;
     }
 
-    // Mengambil data process, assign, dan activity untuk setiap UnitID
-    const enrichedData = await Promise.all(
-      Unit.map(async (unit) => {
-        const processData = await DataProcess.findMany(unit.UnitID);
-        const processWithAssign = await Promise.all(
-          processData.map(async (process) => {
-            const assignData = await DataProcessAssign.findMany(
-              process.ProcessID
-            );
-            const assignWithActivity = await Promise.all(
-              assignData.map(async (assign) => {
-                const activityData = await DataProcessActivity.findMany(
-                  assign.ID
-                );
-                return {
-                  ...assign,
-                  ActivityData: activityData,
-                };
-              })
-            );
-            return {
-              ...process,
-              AssignData: assignWithActivity,
-            };
-          })
-        );
-        return {
-          ...unit,
-          ProcessData: processWithAssign,
-        };
-      })
-    );
-
-    // Pastikan field sorting valid, jika tidak gunakan default "ProcessID"
-    const validSortFields = Object.keys(enrichedData[0] || {});
-    const sortField = validSortFields.includes(sort) ? sort : "ProcessID";
+    // Ambil valid sort fields dari interface IDataUnit
+    const validSortFields = Object.keys({} as IDataUnit);
+    const sortField = validSortFields.includes(sort)
+      ? sort
+      : "unitSerialNumber";
 
     // Filter pencarian manual
-    const filteredData = enrichedData.filter((item) => {
-      const searchableFields = [
-        item.UnitID,
-        item.UnitSerialNumber,
-        item.ProcessCount?.toString(),
-        item.StandardMH?.toString(),
-        item.ActualHours?.toString(),
-      ];
-
-      return searchableFields.some((field) =>
-        (field ?? "").toString().toLowerCase().includes(search.toLowerCase())
-      );
+    const filteredData = Unit.filter((item) => {
+      return Object.values(item)
+        .map((value) => (value ?? "").toString().toLowerCase())
+        .some((field) => field.includes(search.toLowerCase()));
     });
 
     // Sorting data
@@ -358,29 +336,73 @@ export const getAllDataUnitMH = async (
       return 0;
     });
 
-    // Pagination & Hitung Unit + PercentageUsage
-    const paginatedData = sortedData.slice(skip, skip + pageSize);
+    // Format data sesuai interface IDataUnit
+    const formattedData: IDataUnit[] = sortedData
+      .slice(skip, skip + pageSize)
+      .map((item) => ({
+        proNumber: item.PRO_Number, // Sesuaikan dengan alias di query SQL
+        unitSerialNumber: item.Unit_Serial_Number,
+        productGroupName: item.Product_Group_Name,
+        productName: item.Product_Name,
+        processCount: item.Process_Count ?? 0,
+        standardMH: item.Standard_MH ?? 0,
+        actualHours: item.Actual_Hours ?? 0,
+        mpsDueDate: item.MPS_Due_Date ?? null,
+      }));
+
+    // Hitung total item dan halaman
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / pageSize);
 
     res.status(200).json({
       success: true,
-      message: "Berhasil mengambil data Process, Unit, Assign, dan Activity",
+      message: "Berhasil mengambil data Unit",
       data: {
-        data: paginatedData,
+        data: formattedData,
         totalPages,
         currentPage: pageNumber,
         totalItems,
       },
     });
   } catch (err) {
-    console.error(
-      "Error fetching Process, Unit, Assign, and Activity data:",
-      err
-    );
+    console.error("Error fetching Unit data:", err);
     res.status(500).json({
       success: false,
-      message: "Error mengambil data Process, Unit, Assign, dan Activity",
+      message: "Error mengambil data Unit",
+      detail: err,
+    });
+  }
+};
+
+export const getAllDataUnitMHCountByYear = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { year = String(new Date().getFullYear()) } = req.query;
+
+    // Ambil data dari database (sesuaikan dengan ORM/query builder Anda)
+    const Unit: IDataCount[] = await DataUnitCountByYear.findMany(Number(year));
+
+    // Format data sesuai interface IDataCount (no need for map if already formatted)
+    const monthlyCounts = Unit;
+
+    // Hitung total item dan halaman
+    const totalCount = Unit.reduce((acc, item) => acc + item.count, 0);
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil data Unit",
+      data: {
+        data: monthlyCounts,
+        totalCount,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching Unit data:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error mengambil data Unit",
       detail: err,
     });
   }
@@ -397,7 +419,7 @@ export const getAllDataUnitMHProcess = async (
       search = "",
       sort = "ProcessID",
       order = "asc",
-      unitID = "",
+      serialNumber = "",
     } = req.query as Record<string, string>;
 
     const pageNumber = parseInt(page, 10);
@@ -405,10 +427,20 @@ export const getAllDataUnitMHProcess = async (
     const skip = (pageNumber - 1) * pageSize;
     const sortOrder = order.toLowerCase() === "desc" ? -1 : 1;
 
-    const Process = await DataProcess.findMany(Number(unitID));
+    const Process = await DataProcess.findMany(serialNumber);
 
     if (!Array.isArray(Process) || Process.length === 0) {
-      throw new Error("Invalid or empty data from database");
+      res.status(200).json({
+        success: true,
+        message: "Data process unit tidak ditemukan",
+        data: {
+          data: [],
+          totalPages: 0,
+          currentPage: pageNumber,
+          totalItems: 0,
+        },
+      });
+      return;
     }
 
     // Pastikan field sorting valid, jika tidak gunakan default "ProcessID"
@@ -509,7 +541,17 @@ export const getAllDataUnitMHProcessAssign = async (
     const Process = await DataProcessAssign.findMany(Number(processID));
 
     if (!Array.isArray(Process) || Process.length === 0) {
-      throw new Error("Invalid or empty data from database");
+      res.status(200).json({
+        success: true,
+        message: "Data process assign tidak ditemukan",
+        data: {
+          data: [],
+          totalPages: 0,
+          currentPage: pageNumber,
+          totalItems: 0,
+        },
+      });
+      return;
     }
 
     // Pastikan field sorting valid, jika tidak gunakan default "ProcessID"
@@ -618,7 +660,17 @@ export const getAllDataUnitMHProcessActivity = async (
     const Process = await DataProcessActivity.findMany(Number(processAssignID));
 
     if (!Array.isArray(Process) || Process.length === 0) {
-      throw new Error("Invalid or empty data from database");
+      res.status(200).json({
+        success: true,
+        message: "Data process activity tidak ditemukan",
+        data: {
+          data: [],
+          totalPages: 0,
+          currentPage: pageNumber,
+          totalItems: 0,
+        },
+      });
+      return;
     }
 
     const validSortFields = Object.keys(Process[0] || {});

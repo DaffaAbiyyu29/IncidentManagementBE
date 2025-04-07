@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { FBL5N } from "../../models/Table/Satria/FBL5N";
 import { getCurrentWIBDate } from "../../helpers/timeHelper";
 import { formattedDate } from "../../helpers/formattedDate";
+import { IDataCount } from "../../interface/CountData";
 
 // View all dataFBL5N
 export const getAllFBL5N = async (
@@ -14,13 +15,17 @@ export const getAllFBL5N = async (
       page = "1",
       limit = "10",
       search = "",
-      sort = "CustomerName",
+      sort = "NetDueDate",
+      month = String(new Date().getMonth() + 1).padStart(2, "0"),
+      year = String(new Date().getFullYear()),
       order = "asc",
     } = req.query;
 
     const pageNumber = parseInt(page as string, 10);
     const pageSize = parseInt(limit as string, 10);
     const skip = (pageNumber - 1) * pageSize;
+    const sortOrder =
+      order.toString().toLowerCase() === "desc" ? "desc" : "asc";
     const validSortFields = [
       "ID",
       "GLAccount",
@@ -56,23 +61,37 @@ export const getAllFBL5N = async (
     const sortField = validSortFields.includes(sort as string)
       ? (sort as string)
       : "CustomerName";
-    const sortOrder = order === "desc" ? "desc" : "asc";
-
     const dataFBL5NData = await FBL5N.findMany({
       where: {
+        ClearingDate: null, // Filter hanya data yang belum lunas
+        NetDueDate: {
+          gte: new Date(`${year}-${month}-01`), // Awal bulan
+          lt: new Date(
+            `${year}-${(Number(month) + 1).toString().padStart(2, "0")}-01`
+          ), // Awal bulan berikutnya
+        },
         OR: [
           { CustomerName: { contains: search as string } },
           { DocumentNumber: { contains: search as string } },
           { CompanyCode: { contains: search as string } },
         ],
       },
-      orderBy: { [sortField]: sortOrder },
+      orderBy: {
+        [sortField]: sortOrder,
+      },
       skip,
       take: pageSize,
     });
 
     const totalItems = await FBL5N.count({
       where: {
+        ClearingDate: null,
+        NetDueDate: {
+          gte: new Date(`${year}-${month}-01`),
+          lt: new Date(
+            `${year}-${(Number(month) + 1).toString().padStart(2, "0")}-01`
+          ),
+        },
         OR: [
           { CustomerName: { contains: search as string } },
           { DocumentNumber: { contains: search as string } },
@@ -143,6 +162,60 @@ export const getAllFBL5N = async (
     res
       .status(500)
       .json({ success: false, message: "Error mengambil data FBL5N" });
+  }
+};
+
+export const getFBL5NCountByYear = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { year = String(new Date().getFullYear()) } = req.query;
+
+    const startDate = new Date(`${year}-01-01`);
+
+    const monthlyCounts = [];
+    let totalCount = 0;
+
+    for (let month = 0; month < 12; month++) {
+      const monthStartDate = new Date(startDate);
+      monthStartDate.setMonth(month);
+
+      const monthEndDate = new Date(startDate);
+      monthEndDate.setMonth(month + 1);
+
+      const count = await FBL5N.count({
+        where: {
+          ClearingDate: null,
+          NetDueDate: {
+            gte: monthStartDate,
+            lt: monthEndDate,
+          },
+        },
+      });
+
+      if (count > 0) {
+        monthlyCounts.push({
+          count: count,
+          month: month + 1,
+        });
+        totalCount += count;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil data AR",
+      data: {
+        data: monthlyCounts,
+        totalCount: totalCount,
+      },
+    });
+  } catch (err) {
+    console.error("Error menghitung jumlah data AR :", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Error menghitung jumlah data AR" });
   }
 };
 
