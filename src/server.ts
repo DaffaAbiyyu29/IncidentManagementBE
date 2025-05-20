@@ -5,6 +5,8 @@ import bodyParser from "body-parser";
 import apiRoutes from "./routes/api";
 import authRoutes from "./routes/auth";
 import cors from "cors";
+import "./jobs/configuration";
+import { templateEmailSOA } from "./controllers/cms/EmailController";
 
 const app = express();
 app.use(bodyParser.json());
@@ -45,6 +47,7 @@ process.removeAllListeners("warning");
 
 // Start server di port 3000
 const PORT: number = 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
+  await templateEmailSOA("AR");
 });

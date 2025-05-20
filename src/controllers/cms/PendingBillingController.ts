@@ -3,6 +3,8 @@ import { Request, Response } from "express";
 import { VF04 } from "../../models/Table/Satria/VF04";
 import { getCurrentWIBDate } from "../../helpers/timeHelper";
 import { formattedDate } from "../../helpers/formattedDate";
+import { Incident } from "../../models/Table/Satria/trx_LogHistory";
+import { IDataVF04 } from "../../interface/allData";
 
 // View all dataVF04
 export const getAllVF04 = async (
@@ -14,61 +16,38 @@ export const getAllVF04 = async (
       page = "1",
       limit = "10",
       search = "",
-      sort = "NameSoldToParty",
+      sort = "BillDate", // Default sort field
+      month = String(new Date().getMonth() + 1).padStart(2, "0"),
+      year = String(new Date().getFullYear()),
       order = "asc",
+      type = 0,
     } = req.query;
+
+    const now = getCurrentWIBDate();
 
     const pageNumber = parseInt(page as string, 10);
     const pageSize = parseInt(limit as string, 10);
     const skip = (pageNumber - 1) * pageSize;
+    const sortOrder =
+      order.toString().toLowerCase() === "desc" ? "desc" : "asc";
 
-    const validSortFields = [
-      "ID",
-      "BillCategory",
-      "SalesOrg",
-      "BillDate",
-      "SoldToParty",
-      "BillType",
-      "Country",
-      "SalesDocument",
-      "DistributionChannel",
-      "Division",
-      "DocCategory",
-      "Address",
-      "NameSoldToParty",
-      "LocSoldToParty",
-      "SortTerm",
-      "ItemsRead",
-      "Counter",
-      "ShippingPoint",
-      "PODStatus",
-      "NetValue",
-      "DocCurrency",
-      "SDDocumentType",
-      "NameSDType",
-      "BDRSrcDoc",
-      "RefSys",
-      "DraftMode",
-      "DBDRef",
-      "SolutionOrder",
-      "BillDate2",
-      "BillType2",
-      "Groups",
-      "PONumber",
-      "ShippingPointDesc",
-      "SOPOAmount",
-      "Exrate",
-      "created_at",
-      "updated_at",
-    ];
+    // Ambil daftar valid sort fields dari kunci interface IDataVF04
+    const validSortFields = Object.keys(
+      {} as IDataVF04 // Gunakan assertion untuk mendapatkan keys dari interface
+    );
 
     const sortField = validSortFields.includes(sort as string)
       ? (sort as string)
-      : "SoldToParty"; // Default sort field
-    const sortOrder = order === "desc" ? "desc" : "asc";
+      : "SoldToParty"; // Fallback jika sort tidak valid
 
     const dataVF04Data = await VF04.findMany({
       where: {
+        BillDate: {
+          gte: new Date(`${year}-${month}-01`),
+          lt: new Date(
+            `${year}-${(Number(month) + 1).toString().padStart(2, "0")}-01`
+          ),
+        },
         OR: [
           { NameSoldToParty: { contains: search as string } },
           { SalesDocument: { equals: parseInt(search as string) } },
@@ -82,33 +61,78 @@ export const getAllVF04 = async (
       take: pageSize,
     });
 
-    const totalItems = await VF04.count({
-      where: {
-        OR: [
-          { NameSoldToParty: { contains: search as string } },
-          { SalesDocument: { equals: parseInt(search as string) } },
-          { SoldToParty: { contains: search as string } },
-        ],
+    const incidents = await Incident.findMany({
+      where: { IncidentType: "Pending Billing" },
+      include: {
+        pic_ba: true,
+        pic_user: true,
       },
     });
 
+    // Matching VF04.ID === Incident.SalesDocument
+    let resultData = dataVF04Data.filter((vf04Item) => {
+      const matchedIncidents = incidents.filter(
+        (incident) =>
+          Number(incident.SalesDocument) === Number(vf04Item.SalesDocument)
+      );
+
+      // Jika tidak ada incident yang match => return true (masuk resultData)
+      if (matchedIncidents.length === 0) return true;
+
+      // Jika ada incident, cek apakah setidaknya satu memenuhi kondisi CloseDate !== null && Status !== "-"
+      const validIncidentExists = matchedIncidents.some(
+        (incident) => incident.CloseDate !== null && incident.Status !== "-"
+      );
+
+      return validIncidentExists;
+    });
+
+    if (Number(type) === 1) {
+      resultData = dataVF04Data
+        .map((vf04Item) => {
+          const matchedIncidents = incidents.filter((incident) => {
+            if (!incident.BAEmailDate) return false;
+            if (!incident.UserEmailDate) return false;
+            const baEmailDate = new Date(incident.BAEmailDate);
+            const userEmailDate = new Date(incident.UserEmailDate);
+            return (
+              Number(incident.SalesDocument) ===
+                Number(vf04Item.SalesDocument) && now >= baEmailDate
+            );
+          });
+
+          return {
+            ...vf04Item,
+            incidents: matchedIncidents,
+          };
+        })
+        .filter((item) => item.incidents.length > 0);
+    } else if (Number(type) === 2) {
+      resultData = dataVF04Data
+        .map((vf04Item) => {
+          const matchedIncidents = incidents.filter((incident) => {
+            if (!incident.UserEmailDate) return false;
+            const userEmailDate = new Date(incident.UserEmailDate);
+            return (
+              Number(incident.SalesDocument) ===
+                Number(vf04Item.SalesDocument) && now >= userEmailDate
+            );
+          });
+
+          return {
+            ...vf04Item,
+            incidents: matchedIncidents,
+          };
+        })
+        .filter((item) => item.incidents.length > 0);
+    }
+
+    const totalItems = resultData.length;
+
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    const serializedData = dataVF04Data.map((item) => {
-      const billDate = item.BillDate ? new Date(item.BillDate) : new Date();
-
-      let slaCCDays = 7;
-      if (item.NameSoldToParty?.toLowerCase() === "EX WORK") {
-        slaCCDays = 7;
-      } else if (item.NameSoldToParty?.toLowerCase() === "LOCO") {
-        slaCCDays = 30;
-      }
-      const slaCC = new Date(billDate);
-      slaCC.setDate(slaCC.getDate() + slaCCDays);
-
-      const slaUser = new Date(slaCC);
-      slaUser.setDate(slaUser.getDate() + 7);
-
+    // Konversi data sesuai dengan interface IDataVF04
+    const serializedData: IDataVF04[] = resultData.map((item: any) => {
       return {
         ...item,
         ID: Number(item.ID),
@@ -117,13 +141,11 @@ export const getAllVF04 = async (
         DistributionChannel: Number(item.DistributionChannel),
         Division: Number(item.Division),
         Address: Number(item.Address),
-        BillDate: formattedDate(item.BillDate),
-        BillDate2: formattedDate(item.BillDate2),
-        created_at: formattedDate(item.created_at),
-        updated_at: formattedDate(item.updated_at),
-        SLACC: formattedDate(slaCC),
-        SLAUser: formattedDate(slaUser),
-        Status: "-",
+        BillDate: item.BillDate,
+        BillDate2: item.BillDate2,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        incidents: item.incidents, // pastikan ikut serialisasi juga
       };
     });
 
@@ -137,7 +159,7 @@ export const getAllVF04 = async (
         totalItems,
       },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error fetching VF04 data:", err);
     res
       .status(500)
@@ -145,57 +167,67 @@ export const getAllVF04 = async (
   }
 };
 
-export const getVF04CountByYear = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const detectPendingBilling = async (): Promise<void> => {
   try {
-    const { year = String(new Date().getFullYear()) } = req.query;
+    const currentWIB = getCurrentWIBDate();
 
-    const startDate = new Date(`${year}-01-01`);
+    const dataPendingBilling = await VF04.findMany({
+      where: {
+        BillDate: {
+          lte: currentWIB,
+        },
+        AND: {
+          OR: [{ PONumber: null }, { PONumber: "" }, { PONumber: undefined }],
+        },
+      },
+    });
 
-    const monthlyCounts = [];
-    let totalCount = 0;
+    const results: any[] = [];
 
-    for (let month = 0; month < 12; month++) {
-      const monthStartDate = new Date(startDate);
-      monthStartDate.setMonth(month);
-
-      const monthEndDate = new Date(startDate);
-      monthEndDate.setMonth(month + 1);
-
-      const count = await VF04.count({
+    for (const item of dataPendingBilling) {
+      const existingIncident = await Incident.findFirst({
         where: {
-          // ClearingDate: null,
-          BillDate: {
-            gte: monthStartDate,
-            lt: monthEndDate,
-          },
+          SalesDocument: Number(item.SalesDocument),
         },
       });
 
-      if (count > 0) {
-        monthlyCounts.push({
-          count: count,
-          month: month + 1,
-        });
-        totalCount += count;
-      }
-    }
+      if (existingIncident) continue;
 
-    res.status(200).json({
-      success: true,
-      message: "Berhasil mengambil data Billing",
-      data: {
-        data: monthlyCounts,
-        totalCount: totalCount,
-      },
-    });
-  } catch (err) {
-    console.error("Error menghitung jumlah data Billing :", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Error menghitung jumlah data Billing" });
+      let baEmailDate = new Date(currentWIB);
+      baEmailDate.setDate(currentWIB.getDate() + 1);
+      // let baEmailDate = new Date(item.BillDate!);
+      // baEmailDate.setDate(baEmailDate.getDate() + 1);
+
+      let userEmailDate = new Date(item.BillDate!);
+      userEmailDate.setDate(userEmailDate.getDate() + 3);
+
+      const newIncident = await Incident.create({
+        data: {
+          SalesDocument: Number(item.SalesDocument), //ganti jadi SalesDocument
+          IncidentType: "Pending Billing",
+          Description: `Auto-created from Billing ID: ${item.SalesDocument}`,
+          PICBA: 1,
+          BAEmailDate: baEmailDate,
+          BAEmailStatus: "-",
+          PICUser: 3,
+          UserEmailDate: userEmailDate,
+          UserEmailStatus: "-",
+          OpenDate: currentWIB,
+          CloseDate: null,
+          Status: "-",
+        },
+      });
+
+      console.log(
+        `[${new Date().toLocaleString()}] ${
+          results.length
+        } incident berhasil dibuat dari VF04`
+      );
+
+      results.push(newIncident);
+    }
+  } catch (error) {
+    console.error("Error create Incident From VF04 Detect:", error);
   }
 };
 

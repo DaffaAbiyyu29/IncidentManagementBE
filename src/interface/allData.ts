@@ -1,0 +1,94 @@
+export interface IDataFBL5N {
+  ID: number;
+  GlAccount?: string;
+  Reference?: string | number | null;
+  Assignment?: string;
+  DocumentNumber?: string | number | null;
+  DocumentType?: string;
+  PostingDate?: string | null;
+  ClearingDate?: string | null;
+  DocumentDate?: string | null;
+  NetDueDate?: string | null;
+  SpecialGlInd?: string;
+  BusinessArea?: string;
+  Plant?: string;
+  ProfitCenter?: string;
+  Account?: string;
+  CustomerName?: string;
+  AmountDocCurr?: number | null;
+  DocumentCurrency?: string;
+  AmountLocalCurrency?: number | null;
+  LocalCurrency?: string;
+  ReverseClearing?: string;
+  PostingKey?: string;
+  DebitCreditInd?: string;
+  ClearingDocument?: string;
+  Username?: string;
+  Text?: string;
+  CompanyCode?: string;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface IDataVF04 {
+  ID: number;
+  BillCategory?: string;
+  SalesOrg?: number | null;
+  BillDate?: Date | null;
+  SoldToParty?: string;
+  BillType?: string;
+  Country?: string;
+  SalesDocument?: string;
+  DistributionChannel?: string;
+  Division?: string;
+  DocCategory?: string;
+  Address?: string;
+  NameSoldToParty?: string;
+  LocSoldToParty?: string;
+  SortTerm?: string;
+  ItemsRead?: string;
+  Counter?: string;
+  ShippingPoint?: string;
+  PODStatus?: string;
+  NetValue?: string;
+  DocCurrency?: string;
+  SDDocumentType?: string;
+  NameSDType?: string;
+  BDRSrcDoc?: string;
+  RefSys?: string;
+  DraftMode?: string;
+  DBDRef?: string;
+  SolutionOrder?: string;
+  BillDate2?: string;
+  BillType2?: string;
+  Groups?: string;
+  PONumber?: string;
+  ShippingPointDesc?: string;
+  SOPoAmount?: number | null;
+  Exrate?: number | null;
+  created_at?: Date | null;
+  updated_at?: Date | null;
+}
+
+export interface ILogHistory {
+  id: number;
+  incidentID: number | string;
+  description: string;
+  incidentType: string;
+  ba: string;
+  baEmail: string;
+  baEmailDate: Date | string;
+  baEmailStatus: string;
+  user: string;
+  userEmail: string;
+  userEmailDate: Date | string;
+  userEmailStatus: string;
+  openDate: Date | string;
+  closeDate: Date | string;
+  feedbackBa: string;
+  feedbackBaDate: Date | string;
+  feedbackUser: string;
+  feedbackUserDate: Date | string;
+  flagStatus: number;
+  status: string;
+}

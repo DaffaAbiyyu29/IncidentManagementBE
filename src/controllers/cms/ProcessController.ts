@@ -1,22 +1,30 @@
 // src/controllers/cms/ProcessController.ts
 import { Request, Response } from "express";
 import { Process } from "../../models/Table/Satria/Process";
-import { vwProcess } from "../../models/Table/Satria/vwProcess";
 import { getCurrentWIBDate } from "../../helpers/timeHelper";
 import { formattedDate } from "../../helpers/formattedDate";
 import { Manhour } from "../../interface/Manhour";
-import { IDataUnit } from "../../interface/MHUtil";
+import {
+  IDataProcess,
+  IDataProcessActivity,
+  IDataProcessAssign,
+  IDataUnit,
+} from "../../interface/MHUtil";
 import { IDataCount } from "../../interface/CountData";
 import {
   DataUnit,
-  DataUnitCountByYear,
   DataProcess,
   DataProcessAssign,
   DataProcessActivity,
 } from "../../models/Table/Satria/MHUtil";
+import { minutesInHour } from "date-fns/constants";
+import { vwUnit } from "../../models/Table/Satria/vwUnit";
+import { vwProcess } from "../../models/Table/Satria/vwProcess";
+import { vwProcessAssign2All } from "../../models/Table/Satria/vwProcessAssign";
+import { vwProcessActivity } from "../../models/Table/Satria/vwProcessActivity";
+import { Incident } from "../../models/Table/Satria/trx_LogHistory";
 
-// View all dataProcess
-export const getAllProcess = async (
+export const getAllDataProcessUnit = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -25,87 +33,343 @@ export const getAllProcess = async (
       page = "1",
       limit = "10",
       search = "",
-      sort = "ID",
+      sort = "mpsDueDate",
+      month = String(new Date().getMonth() + 1).padStart(2, "0"),
+      year = String(new Date().getFullYear()),
       order = "asc",
+      type = 0,
+    } = req.query;
+
+    const now = getCurrentWIBDate();
+
+    const pageNumber = parseInt(page as string, 10);
+    const pageSize = parseInt(limit as string, 10);
+    const skip = (pageNumber - 1) * pageSize;
+    const sortOrder =
+      order.toString().toLowerCase() === "desc" ? "desc" : "asc";
+
+    // Ambil daftar valid sort fields dari kunci interface DataFBL5N
+    const validSortFields = Object.keys(
+      {} as IDataUnit // Gunakan assertion untuk mendapatkan keys dari interface
+    );
+
+    const sortField = validSortFields.includes(sort as string)
+      ? (sort as string)
+      : "UnitSerialNumber"; // Fallback jika sort tidak valid
+
+    const units = await vwUnit.findMany({
+      where: {
+        AND: [
+          {
+            UnitMPSDueDate: {
+              gte: new Date(`${year}-${month}-01`),
+              lt: new Date(
+                `${year}-${(Number(month) + 1).toString().padStart(2, "0")}-01`
+              ),
+            },
+          },
+          {
+            vwPRO: {
+              Number: {
+                not: undefined,
+              },
+            },
+          },
+          {
+            vwProduct: {
+              ProductName: {
+                not: undefined,
+              },
+            },
+          },
+        ],
+        OR: [
+          { UnitSerialNumber: { contains: search as string } },
+          { vwPRO: { Number: { contains: search as string } } },
+          { vwProduct: { ProductName: { contains: search as string } } },
+          {
+            vwProduct: {
+              vwProductGroup: {
+                ProductGroupName: { contains: search as string },
+              },
+            },
+          },
+          // dst. untuk semua kolom string
+        ],
+      },
+      include: {
+        vwPRO: true,
+        vwProduct: {
+          include: {
+            vwProductGroup: true,
+          },
+        },
+        vwProcess: {
+          select: {
+            StandardMH: true,
+            ProcessActualEndDate: true,
+            vwProcessAssign: {
+              select: {
+                vwProcessActivity: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        [sortField]: sortOrder,
+      },
+      skip,
+      take: pageSize,
+    });
+
+    const incidents = await Incident.findMany({
+      where: { IncidentType: "Manhour Discrepancy" },
+      include: {
+        pic_ba: true,
+        pic_user: true,
+      },
+    });
+
+    let resultData = units.filter((unitData) => {
+      const matchedIncidents = incidents.filter(
+        (incident) => incident.UnitSerialNumber === unitData.UnitSerialNumber
+      );
+
+      // Jika tidak ada incident yang match => return true (masuk resultData)
+      if (matchedIncidents.length === 0) return true;
+
+      // Jika ada incident, cek apakah setidaknya satu memenuhi kondisi CloseDate !== null && Status !== "-"
+      const validIncidentExists = matchedIncidents.some(
+        (incident) => incident.CloseDate !== null && incident.Status !== "-"
+      );
+
+      return validIncidentExists;
+    });
+
+    if (Number(type) === 1) {
+      resultData = units
+        .map((unitData) => {
+          const matchedIncidents = incidents.filter((incident) => {
+            if (!incident.BAEmailDate) return false;
+            if (!incident.UserEmailDate) return false;
+            const baEmailDate = new Date(incident.BAEmailDate);
+            const userEmailDate = new Date(incident.UserEmailDate);
+            return (
+              incident.UnitSerialNumber === unitData.UnitSerialNumber &&
+              now >= baEmailDate
+            );
+          });
+
+          return {
+            ...unitData,
+            incidents: matchedIncidents,
+          };
+        })
+        .filter((item) => item.incidents.length > 0);
+    } else if (Number(type) === 2) {
+      resultData = units
+        .map((unitData) => {
+          const matchedIncidents = incidents.filter((incident) => {
+            if (!incident.UserEmailDate) return false;
+            const userEmailDate = new Date(incident.UserEmailDate);
+            return (
+              incident.UnitSerialNumber === unitData.UnitSerialNumber &&
+              now >= userEmailDate
+            );
+          });
+
+          return {
+            ...unitData,
+            incidents: matchedIncidents,
+          };
+        })
+        .filter((item) => item.incidents.length > 0);
+    }
+
+    const totalItems = resultData.length;
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // Konversi data sesuai dengan interface DataFBL5N
+    const serializedData = resultData.map((unit) => {
+      const standardMH = unit.vwProcess.reduce(
+        (sum, proc) => sum + (proc.StandardMH ? proc.StandardMH.toNumber() : 0),
+        0
+      );
+
+      const completedStandardMH = unit.vwProcess.reduce((sum, proc) => {
+        if (proc.ProcessActualEndDate !== null) {
+          return sum + (proc.StandardMH ? proc.StandardMH.toNumber() : 0);
+        }
+        return sum;
+      }, 0);
+
+      const progressPercent =
+        standardMH === 0
+          ? 0
+          : Number(((completedStandardMH / standardMH) * 100).toFixed(2));
+
+      const processCount = unit.vwProcess.length;
+      const processCompleted = unit.vwProcess.filter(
+        (proc) => proc.ProcessActualEndDate !== null
+      ).length;
+
+      const mhUtil =
+        (Number(unit.UnitActualHoursCompleted?.toFixed(2)) /
+          Number(standardMH.toFixed(2))) *
+        100;
+      
+      const mhDiscrepancy = mhUtil - progressPercent;
+
+      return {
+        proNumber: unit.vwPRO ? unit.vwPRO.Number : null, // Tangani jika vwPRO null
+        unitSerialNumber: unit.UnitSerialNumber,
+        productGroupName:
+          unit.vwProduct?.vwProductGroup?.ProductGroupName ?? null,
+        productName: unit.vwProduct?.ProductName ?? null,
+        unitPlanStartDate: unit.UnitPlanStartDate
+          ? unit.UnitPlanStartDate.toISOString()
+          : null,
+        unitPlanEndDate: unit.UnitPlanEndDate
+          ? unit.UnitPlanEndDate.toISOString()
+          : null,
+        unitPlanDuration: unit.UnitPlanDuration ?? null,
+        unitActualStartDate: unit.UnitActualStartDate
+          ? unit.UnitActualStartDate.toISOString()
+          : null,
+        unitActualEndDate: unit.UnitActualEndDate
+          ? unit.UnitActualEndDate.toISOString()
+          : null,
+        unitActualDuration: unit.UnitActualDuration ?? null,
+        unitDelayInDay: unit.UnitDelayInDay ?? null,
+        standardMH: Number(standardMH.toFixed(2)),
+        actualHours: Number(unit.UnitActualHoursCompleted?.toFixed(2)) ?? 0,
+        processCount: processCount,
+        processCompleted: processCompleted,
+        mhUtilization: Number(mhUtil.toFixed(2)),
+        mhDiscrepancy: Number(mhDiscrepancy.toFixed(2)),
+        progressPercent: Number(progressPercent.toFixed(2)),
+        mpsDueDate: unit.UnitMPSDueDate
+          ? unit.UnitMPSDueDate.toISOString()
+          : null,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil data Unit",
+      data: {
+        data: serializedData,
+        totalPages,
+        currentPage: pageNumber,
+        totalItems,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching Unit data:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error mengambil data Unit",
+      detail: err,
+    });
+  }
+};
+
+export const getDataDetailProcessUnit = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      page = "1",
+      limit = "10",
+      search = "",
+      sort = "StandardMH",
+      order = "desc",
+      serialNumber = "",
     } = req.query;
 
     const pageNumber = parseInt(page as string, 10);
     const pageSize = parseInt(limit as string, 10);
     const skip = (pageNumber - 1) * pageSize;
-    const validSortFields = [
-      "ID",
-      "UnitID",
-      "MasterProcessID",
-      "Status",
-      "PlanStartDate",
-      "PlanEndDate",
-      "ActualStartDate",
-      "ActualEndDate",
-      "IsHold",
-      "HoldDate",
-      "Created",
-      "CreatedBy",
-      "LastModified",
-      "LastModifiedBy",
-    ];
+    const sortOrder = order.toString().toLowerCase() === "asc" ? "asc" : "desc";
+
+    // Ambil daftar valid sort fields dari kunci interface DataFBL5N
+    const validSortFields = Object.keys(
+      {} as IDataProcess // Gunakan assertion untuk mendapatkan keys dari interface
+    );
 
     const sortField = validSortFields.includes(sort as string)
       ? (sort as string)
-      : "ID";
-    const sortOrder = order === "desc" ? "desc" : "asc";
+      : "StandardMH"; // Fallback jika sort tidak valid
 
-    const dataProcessData = await Process.findMany({
+    const unit = await vwUnit.findFirst({
       where: {
-        OR: [
-          { CreatedBy: { contains: search as string } },
-          { LastModifiedBy: { contains: search as string } },
-        ],
+        UnitSerialNumber: serialNumber.toString(), // Cari berdasarkan serial number
       },
-      orderBy: { [sortField]: sortOrder },
-      skip,
-      take: pageSize,
-      include: {
-        ProcessAssign: {
-          include: {
-            ProcessActivity: true, // Include related ProcessActivity
-          },
-        },
+      select: {
+        UnitID: true, // Ambil UnitID untuk digunakan di query selanjutnya
       },
     });
 
-    const totalItems = await Process.count({
-      where: {
-        OR: [
-          { CreatedBy: { contains: search as string } },
-          { LastModifiedBy: { contains: search as string } },
-        ],
+    const baseWhere = {
+      UnitID: unit?.UnitID,
+      OR: [
+        { MasterProcessName: { contains: search as string } },
+        { ProcessGroupName: { contains: search as string } },
+      ],
+    };
+
+    // ✅ Ambil total StandardMH seluruh data (TIDAK PAGINASI)
+    const totalStandardMHResult = await vwProcess.aggregate({
+      where: baseWhere,
+      _sum: {
+        StandardMH: true,
       },
+    });
+
+    const totalStandardMH = totalStandardMHResult._sum.StandardMH ?? 0;
+
+    // ✅ Ambil data paginasi
+    const process = await vwProcess.findMany({
+      where: baseWhere,
+      orderBy: {
+        [sortField]: sortOrder,
+      },
+      skip,
+      take: pageSize,
+    });
+
+    const totalItems = await vwProcess.count({
+      where: baseWhere,
     });
 
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    // Konversi data sesuai model dan format tanggal
-    const serializedData = dataProcessData.map((item: any) => {
+    const serializedData = process.map((item) => {
+      const ratioPercent = totalStandardMH
+        ? (Number(item.StandardMH) / Number(totalStandardMH)) * 100
+        : 0;
+
       return {
-        ID: Number(item.ID),
+        ProcessID: item.ProcessID,
         UnitID: item.UnitID,
+        ProcessStatus: item.ProcessStatus,
+        ProcessPlanStartDate: item.ProcessPlanStartDate,
+        ProcessPlanEndDate: item.ProcessPlanEndDate,
+        ProcessPlanDuration: item.ProcessPlanDuration,
+        ProcessActualStartDate: item.ProcessActualStartDate,
+        ProcessActualEndDate: item.ProcessActualEndDate,
+        ProcessActualDuration: item.ProcessActualDuration,
+        MasterProcessName: item.MasterProcessName,
+        StandardMH: Number(item.StandardMH),
+        ProcessGroupName: item.ProcessGroupName,
+        ProcessDelayInDay: item.ProcessDelayInDay,
+        ProcessOrder: item.ProcessOrder,
+        RatioPercent: Number(ratioPercent.toFixed(2)),
+        LastModified: item.LastModified,
         MasterProcessID: item.MasterProcessID,
-        Status: item.Status,
-        PlanStartDate: formattedDate(item.PlanStartDate),
-        PlanEndDate: formattedDate(item.PlanEndDate),
-        ActualStartDate: formattedDate(item.ActualStartDate),
-        ActualEndDate: formattedDate(item.ActualEndDate),
-        IsHold: item.IsHold,
-        HoldDate: formattedDate(item.HoldDate),
-        Created: formattedDate(item.Created),
-        CreatedBy: item.CreatedBy,
-        LastModified: formattedDate(item.LastModified),
-        LastModifiedBy: item.LastModifiedBy,
-        ProcessAssign:
-          item.ProcessAssign?.map((assign: any) => ({
-            ...assign,
-            ProcessActivity: assign.ProcessActivity ?? [],
-          })) ?? [],
       };
     });
 
@@ -121,136 +385,6 @@ export const getAllProcess = async (
     });
   } catch (err) {
     console.error("Error fetching Process data:", err);
-    res
-      .status(500)
-      .json({ success: false, message: "Error mengambil data Process" });
-  }
-};
-
-export const getAllProcessMH = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const {
-      page = "1",
-      limit = "10",
-      search = "",
-      sort = "ProcessID",
-      order = "asc",
-    } = req.query as Record<string, string>;
-
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(limit, 10);
-    const skip = (pageNumber - 1) * pageSize;
-    const sortOrder = order.toLowerCase() === "desc" ? -1 : 1;
-
-    const dataManhour: Manhour[] = await vwProcess.findMany();
-
-    if (!Array.isArray(dataManhour) || dataManhour.length === 0) {
-      throw new Error("Invalid or empty data from database");
-    }
-
-    // Pastikan field sorting valid, jika tidak gunakan default "ProcessID"
-    const validSortFields: string[] = Object.keys(dataManhour[0] || {});
-    const sortField = validSortFields.includes(sort) ? sort : "ProcessID";
-
-    // Filter pencarian manual
-    const filteredData = dataManhour.filter((item) => {
-      const searchableFields = [
-        item.ProcessID?.toString(),
-        item.ProcessGroupName,
-        item.MasterProcessName,
-        item.ProcessStatus,
-        item.StatusAssign,
-        item.TypeAssign,
-        item.StatusActivity,
-      ];
-
-      return searchableFields.some((field) =>
-        (field ?? "").toString().toLowerCase().includes(search.toLowerCase())
-      );
-    });
-
-    // Sorting data
-    const sortedData = filteredData.sort((a, b) => {
-      let valA = a[sortField as keyof Manhour];
-      let valB = b[sortField as keyof Manhour];
-
-      if (valA == null) return sortOrder * -1;
-      if (valB == null) return sortOrder * 1;
-
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortOrder * (valA - valB);
-      }
-
-      if (sortField.includes("Date") && typeof valA === "string") {
-        return (
-          sortOrder *
-          (new Date(valA).getTime() - new Date(valB as string).getTime())
-        );
-      }
-
-      if (typeof valA === "string" && typeof valB === "string") {
-        return sortOrder * valA.localeCompare(valB);
-      }
-
-      return 0;
-    });
-
-    // Pagination & Hitung ManHour + PercentageUsage
-    const paginatedData = sortedData
-      .slice(skip, skip + pageSize)
-      .map((item) => {
-        const parseNumber = (value: string | number | null): number => {
-          if (typeof value === "string") {
-            return parseFloat(value.replace(",", "."));
-          }
-          return value ?? 0;
-        };
-
-        const standardMH = parseNumber(item.StandardMH);
-        const actualHours = parseNumber(item.ActualHours);
-
-        const manhour = standardMH > 0 ? actualHours / standardMH : 0;
-
-        // Hitung PercentageUsage dengan aman (hindari division by zero)
-        const percentageUsage =
-          standardMH > 0 ? (actualHours / standardMH) * 100 : 0;
-
-        return {
-          ...item,
-          ProcessPlanStartDate: formattedDate(item.ProcessPlanStartDate),
-          ProcessPlanEndDate: formattedDate(item.ProcessPlanEndDate),
-          ProcessActualStartDate: formattedDate(item.ProcessActualStartDate),
-          ProcessActualEndDate: formattedDate(item.ProcessActualEndDate),
-          TglAssign: formattedDate(item.TglAssign),
-          ActivityDateTime: formattedDate(item.ActivityDateTime),
-          StandardMH:
-            standardMH > 0 ? String(standardMH).replace(".", ",") : "0",
-          ActualHours:
-            actualHours > 0 ? String(actualHours).replace(".", ",") : "0",
-          ManHour: String(manhour.toFixed(2)).replace(".", ","),
-          PercentageUsage:
-            String(percentageUsage.toFixed(2)).replace(".", ",") + " %",
-        };
-      });
-
-    const totalItems = filteredData.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    res.status(200).json({
-      success: true,
-      message: "Berhasil mengambil data Process",
-      data: {
-        data: paginatedData,
-        totalPages,
-        currentPage: pageNumber,
-        totalItems,
-      },
-    });
-  } catch (err) {
-    console.error("Error fetching Process data:", err);
     res.status(500).json({
       success: false,
       message: "Error mengambil data Process",
@@ -259,267 +393,7 @@ export const getAllProcessMH = async (
   }
 };
 
-export const getAllDataUnitMH = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const {
-      page = "1",
-      limit = "10",
-      search = "",
-      sort = "mpsDueDate",
-      month = String(new Date().getMonth() + 1).padStart(2, "0"),
-      year = String(new Date().getFullYear()),
-      order = "asc",
-    } = req.query as Record<string, string>;
-
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(limit, 10);
-    const skip = (pageNumber - 1) * pageSize;
-    const sortOrder = order.toLowerCase() === "desc" ? -1 : 1;
-
-    // Ambil data dari database
-    const Unit = await DataUnit.findMany(Number(month), Number(year));
-
-    // Jika data kosong, return response tanpa error
-    if (!Array.isArray(Unit) || Unit.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "Data unit tidak ditemukan",
-        data: {
-          data: [],
-          totalPages: 0,
-          currentPage: pageNumber,
-          totalItems: 0,
-        },
-      });
-      return;
-    }
-
-    // Ambil valid sort fields dari interface IDataUnit
-    const validSortFields = Object.keys({} as IDataUnit);
-    const sortField = validSortFields.includes(sort)
-      ? sort
-      : "unitSerialNumber";
-
-    // Filter pencarian manual
-    const filteredData = Unit.filter((item) => {
-      return Object.values(item)
-        .map((value) => (value ?? "").toString().toLowerCase())
-        .some((field) => field.includes(search.toLowerCase()));
-    });
-
-    // Sorting data
-    const sortedData = filteredData.sort((a, b) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
-
-      if (valA == null) return sortOrder * -1;
-      if (valB == null) return sortOrder * 1;
-
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortOrder * (valA - valB);
-      }
-
-      if (sortField.includes("Date") && typeof valA === "string") {
-        return (
-          sortOrder *
-          (new Date(valA).getTime() - new Date(valB as string).getTime())
-        );
-      }
-
-      if (typeof valA === "string" && typeof valB === "string") {
-        return sortOrder * valA.localeCompare(valB);
-      }
-
-      return 0;
-    });
-
-    // Format data sesuai interface IDataUnit
-    const formattedData: IDataUnit[] = sortedData
-      .slice(skip, skip + pageSize)
-      .map((item) => ({
-        proNumber: item.PRO_Number, // Sesuaikan dengan alias di query SQL
-        unitSerialNumber: item.Unit_Serial_Number,
-        productGroupName: item.Product_Group_Name,
-        productName: item.Product_Name,
-        processCount: item.Process_Count ?? 0,
-        standardMH: item.Standard_MH ?? 0,
-        actualHours: item.Actual_Hours ?? 0,
-        mpsDueDate: item.MPS_Due_Date ?? null,
-      }));
-
-    // Hitung total item dan halaman
-    const totalItems = filteredData.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    res.status(200).json({
-      success: true,
-      message: "Berhasil mengambil data Unit",
-      data: {
-        data: formattedData,
-        totalPages,
-        currentPage: pageNumber,
-        totalItems,
-      },
-    });
-  } catch (err) {
-    console.error("Error fetching Unit data:", err);
-    res.status(500).json({
-      success: false,
-      message: "Error mengambil data Unit",
-      detail: err,
-    });
-  }
-};
-
-export const getAllDataUnitMHCountByYear = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const { year = String(new Date().getFullYear()) } = req.query;
-
-    // Ambil data dari database (sesuaikan dengan ORM/query builder Anda)
-    const Unit: IDataCount[] = await DataUnitCountByYear.findMany(Number(year));
-
-    // Format data sesuai interface IDataCount (no need for map if already formatted)
-    const monthlyCounts = Unit;
-
-    // Hitung total item dan halaman
-    const totalCount = Unit.reduce((acc, item) => acc + item.count, 0);
-
-    res.status(200).json({
-      success: true,
-      message: "Berhasil mengambil data Unit",
-      data: {
-        data: monthlyCounts,
-        totalCount,
-      },
-    });
-  } catch (err) {
-    console.error("Error fetching Unit data:", err);
-    res.status(500).json({
-      success: false,
-      message: "Error mengambil data Unit",
-      detail: err,
-    });
-  }
-};
-
-export const getAllDataUnitMHProcess = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const {
-      page = "1",
-      limit = "10",
-      search = "",
-      sort = "ProcessID",
-      order = "asc",
-      serialNumber = "",
-    } = req.query as Record<string, string>;
-
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(limit, 10);
-    const skip = (pageNumber - 1) * pageSize;
-    const sortOrder = order.toLowerCase() === "desc" ? -1 : 1;
-
-    const Process = await DataProcess.findMany(serialNumber);
-
-    if (!Array.isArray(Process) || Process.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "Data process unit tidak ditemukan",
-        data: {
-          data: [],
-          totalPages: 0,
-          currentPage: pageNumber,
-          totalItems: 0,
-        },
-      });
-      return;
-    }
-
-    // Pastikan field sorting valid, jika tidak gunakan default "ProcessID"
-    const validSortFields = Object.keys(Process[0] || {});
-    const sortField = validSortFields.includes(sort) ? sort : "ProcessID";
-
-    // Filter pencarian manual
-    const filteredData = Process.filter((item) => {
-      const searchableFields = [
-        item.ProcessID?.toString(),
-        item.ProcessGroupName,
-        item.MasterProcessName,
-        item.ProcessStatus,
-        item.StatusAssign,
-        item.TypeAssign,
-        item.StatusActivity,
-        item.StandardMH?.toString(),
-      ];
-
-      return searchableFields.some((field) =>
-        (field ?? "").toString().toLowerCase().includes(search.toLowerCase())
-      );
-    });
-
-    // Sorting data
-    const sortedData = filteredData.sort((a, b) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
-
-      if (valA == null) return sortOrder * -1;
-      if (valB == null) return sortOrder * 1;
-
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortOrder * (valA - valB);
-      }
-
-      if (sortField.includes("Date") && typeof valA === "string") {
-        return (
-          sortOrder *
-          (new Date(valA).getTime() - new Date(valB as string).getTime())
-        );
-      }
-
-      if (typeof valA === "string" && typeof valB === "string") {
-        return sortOrder * valA.localeCompare(valB);
-      }
-
-      return 0;
-    });
-
-    // Pagination & Hitung Unit + PercentageUsage
-    const paginatedData = sortedData.slice(skip, skip + pageSize);
-    const totalItems = filteredData.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    res.status(200).json({
-      success: true,
-      message: "Berhasil mengambil data Process, Unit, Assign, dan Activity",
-      data: {
-        data: paginatedData,
-        totalPages,
-        currentPage: pageNumber,
-        totalItems,
-      },
-    });
-  } catch (err) {
-    console.error(
-      "Error fetching Process, Unit, Assign, and Activity data:",
-      err
-    );
-    res.status(500).json({
-      success: false,
-      message: "Error mengambil data Process, Unit, Assign, dan Activity",
-      detail: err,
-    });
-  }
-};
-
-export const getAllDataUnitMHProcessAssign = async (
+export const getDataProcessAssign = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -531,114 +405,92 @@ export const getAllDataUnitMHProcessAssign = async (
       sort = "ProcessID",
       order = "asc",
       processID = "",
-    } = req.query as Record<string, string>;
+    } = req.query;
 
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(limit, 10);
+    const pageNumber = parseInt(page as string, 10);
+    const pageSize = parseInt(limit as string, 10);
     const skip = (pageNumber - 1) * pageSize;
-    const sortOrder = order.toLowerCase() === "desc" ? -1 : 1;
+    const sortOrder =
+      order.toString().toLowerCase() === "desc" ? "desc" : "asc";
 
-    const Process = await DataProcessAssign.findMany(Number(processID));
+    // Ambil daftar valid sort fields dari kunci interface DataFBL5N
+    const validSortFields = Object.keys(
+      {} as IDataProcessAssign // Gunakan assertion untuk mendapatkan keys dari interface
+    );
 
-    if (!Array.isArray(Process) || Process.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "Data process assign tidak ditemukan",
-        data: {
-          data: [],
-          totalPages: 0,
-          currentPage: pageNumber,
-          totalItems: 0,
-        },
-      });
-      return;
-    }
+    const sortField = validSortFields.includes(sort as string)
+      ? (sort as string)
+      : "ProcessID"; // Fallback jika sort tidak valid
 
-    // Pastikan field sorting valid, jika tidak gunakan default "ProcessID"
-    const validSortFields = Object.keys(Process[0] || {});
-    const sortField = validSortFields.includes(sort) ? sort : "ProcessAssignID";
-
-    // Filter pencarian manual
-    const filteredData = Process.filter((item) => {
-      const searchableFields = [
-        item.ID?.toString(),
-        item.IsActive?.toString(),
-        item.LastModified,
-        item.LeaderName,
-        item.NRP,
-        item.OperatorName,
-        item.ProcessAssignType,
-        item.ProcessID?.toString(),
-        item.ProcessassignStatus,
-        item.Startassign,
-        item.Stopassign,
-        item.TglAssign,
-        item.UnitID?.toString(),
-        item.lastStart,
-        item.lastStop,
-        item.remark,
-      ];
-
-      return searchableFields.some((field) =>
-        (field ?? "").toString().toLowerCase().includes(search.toLowerCase())
-      );
+    const processAssign = await vwProcessAssign2All.findMany({
+      where: {
+        ProcessID: Number(processID),
+        OR: [
+          { LeaderName: { contains: search as string } },
+          { OperatorName: { contains: search as string } },
+        ],
+      },
+      orderBy: {
+        [sortField]: sortOrder,
+      },
+      skip,
+      take: pageSize,
     });
 
-    // Sorting data
-    const sortedData = filteredData.sort((a, b) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
-
-      if (valA == null) return sortOrder * -1;
-      if (valB == null) return sortOrder * 1;
-
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortOrder * (valA - valB);
-      }
-
-      if (sortField.includes("Date") && typeof valA === "string") {
-        return (
-          sortOrder *
-          (new Date(valA).getTime() - new Date(valB as string).getTime())
-        );
-      }
-
-      if (typeof valA === "string" && typeof valB === "string") {
-        return sortOrder * valA.localeCompare(valB);
-      }
-
-      return 0;
+    const totalItems = await vwProcessAssign2All.count({
+      where: {
+        ProcessID: Number(processID),
+        OR: [
+          { LeaderName: { contains: search as string } },
+          { OperatorName: { contains: search as string } },
+        ],
+      },
     });
 
-    // Pagination & Hitung Unit + PercentageUsage
-    const paginatedData = sortedData.slice(skip, skip + pageSize);
-    const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / pageSize);
+
+    const serializedData = processAssign.map((item) => {
+      return {
+        ID: item.ID,
+        ProcessID: item.ProcessID,
+        UnitID: item.UnitID,
+        LeaderName: item.LeaderName,
+        OperatorName: item.OperatorName,
+        NRP: item.NRP,
+        TglAssign: item.TglAssign,
+        ProcessassignStatus: item.ProcessassignStatus,
+        Startassign: item.Startassign,
+        Stopassign: item.Stopassign,
+        ProcessAssignType: item.ProcessAssignType,
+        LastModified: item.LastModified,
+        lastStart: item.lastStart,
+        lastStop: item.lastStop,
+        remark: item.remark,
+        IsActive: item.IsActive,
+      };
+    });
 
     res.status(200).json({
       success: true,
-      message: "Berhasil mengambil data Process, Unit, Assign, dan Activity",
+      message: "Berhasil mengambil data Assign",
       data: {
-        data: paginatedData,
+        data: serializedData,
         totalPages,
         currentPage: pageNumber,
         totalItems,
       },
     });
   } catch (err) {
-    console.error(
-      "Error fetching Process, Unit, Assign, and Activity data:",
-      err
-    );
+    console.error("Error fetching Assign data:", err);
     res.status(500).json({
       success: false,
-      message: "Error mengambil data Process, Unit, Assign, dan Activity",
+      message: "Error mengambil data Assign",
       detail: err,
     });
   }
 };
 
-export const getAllDataUnitMHProcessActivity = async (
+export const getDataProcessActivity = async (
   req: Request,
   res: Response
 ): Promise<void> => {
@@ -650,90 +502,73 @@ export const getAllDataUnitMHProcessActivity = async (
       sort = "ProcessActivityID",
       order = "asc",
       processAssignID = "",
-    } = req.query as Record<string, string>;
+    } = req.query;
 
-    const pageNumber = parseInt(page, 10);
-    const pageSize = parseInt(limit, 10);
+    const pageNumber = parseInt(page as string, 10);
+    const pageSize = parseInt(limit as string, 10);
     const skip = (pageNumber - 1) * pageSize;
-    const sortOrder = order.toLowerCase() === "desc" ? -1 : 1;
+    const sortOrder =
+      order.toString().toLowerCase() === "desc" ? "desc" : "asc";
 
-    const Process = await DataProcessActivity.findMany(Number(processAssignID));
+    // Ambil daftar valid sort fields dari kunci interface DataFBL5N
+    const validSortFields = Object.keys(
+      {} as IDataProcessActivity // Gunakan assertion untuk mendapatkan keys dari interface
+    );
 
-    if (!Array.isArray(Process) || Process.length === 0) {
-      res.status(200).json({
-        success: true,
-        message: "Data process activity tidak ditemukan",
-        data: {
-          data: [],
-          totalPages: 0,
-          currentPage: pageNumber,
-          totalItems: 0,
-        },
-      });
-      return;
-    }
+    const sortField = validSortFields.includes(sort as string)
+      ? (sort as string)
+      : "ProcessActivityID"; // Fallback jika sort tidak valid
 
-    const validSortFields = Object.keys(Process[0] || {});
-    const sortField = validSortFields.includes(sort)
-      ? sort
-      : "ProcessActivityID";
-
-    const filteredData = Process.filter((item) => {
-      const searchableFields = [
-        item.atasan,
-        item.EmployeeNumber?.toString(),
-        item.ActivityDateTime?.toString(),
-        item.ProcessActivityID?.toString(),
-        item.ProcessAssignID?.toString(),
-        item.ProcessActivityName,
-        item.ProcessActivityStatus,
-        item.ProcessActivityReasonPause,
-        item.ActualHoursNonProductive?.toString(),
-        item.ProcessActivityActualHours?.toString(),
-        item.ProcessActivityDateTime?.toString(),
-        item.LastModifiedBy,
-        item.LastModified?.toString(),
-      ];
-
-      return searchableFields.some((field) =>
-        (field ?? "").toString().toLowerCase().includes(search.toLowerCase())
-      );
+    const processActivity = await vwProcessActivity.findMany({
+      where: {
+        ProcessAssignID: Number(processAssignID),
+        OR: [
+          { EmployeeNumber: { contains: search as string } },
+          { atasan: { contains: search as string } },
+        ],
+      },
+      orderBy: {
+        [sortField]: sortOrder,
+      },
+      skip,
+      take: pageSize,
     });
 
-    const sortedData = filteredData.sort((a, b) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
-
-      if (valA == null) return sortOrder * -1;
-      if (valB == null) return sortOrder * 1;
-
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortOrder * (valA - valB);
-      }
-
-      if (sortField.includes("Date") && typeof valA === "string") {
-        return (
-          sortOrder *
-          (new Date(valA).getTime() - new Date(valB as string).getTime())
-        );
-      }
-
-      if (typeof valA === "string" && typeof valB === "string") {
-        return sortOrder * valA.localeCompare(valB);
-      }
-
-      return 0;
+    const totalItems = await vwProcessActivity.count({
+      where: {
+        ProcessAssignID: Number(processAssignID),
+        OR: [
+          { EmployeeNumber: { contains: search as string } },
+          { atasan: { contains: search as string } },
+        ],
+      },
     });
 
-    const paginatedData = sortedData.slice(skip, skip + pageSize);
-    const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / pageSize);
+
+    const serializedData = processActivity.map((item) => {
+      return {
+        atasan: item.atasan,
+        EmployeeNumber: item.EmployeeNumber,
+        ActivityDateTime: item.ActivityDateTime,
+        ProcessActivityID: item.ProcessActivityID,
+        ProcessAssignID: item.ProcessAssignID,
+        ProcessActivityName: item.ProcessActivityName,
+        ProcessActivityStatus: item.ProcessActivityStatus,
+        ProcessActivityReasonPause: item.ProcessActivityReasonPause,
+        ActualHoursNonProductive: item.ActualHoursNonProductive,
+        ProcessActivityActualHours: item.ProcessActivityActualHours,
+        ProcessActivityDateTime: item.ProcessActivityDateTime,
+        LastModifiedBy: item.LastModifiedBy,
+        LastModified: item.LastModified,
+      };
+    });
 
     res.status(200).json({
       success: true,
       message: "Berhasil mengambil data Process Activity",
       data: {
-        data: paginatedData,
+        data: serializedData,
         totalPages,
         currentPage: pageNumber,
         totalItems,
@@ -746,5 +581,144 @@ export const getAllDataUnitMHProcessActivity = async (
       message: "Error mengambil data Process Activity",
       detail: err,
     });
+  }
+};
+
+export const detectManhourDiscrepancy = async (): Promise<void> => {
+  try {
+    const currentWIB = getCurrentWIBDate(); // atau new Date();
+
+    const units = await vwUnit.findMany({
+      where: {
+        vwPRO: { Number: { not: undefined } },
+        vwProduct: { ProductName: { not: undefined } },
+      },
+      include: {
+        vwPRO: true,
+        vwProduct: {
+          include: { vwProductGroup: true },
+        },
+        vwProcess: {
+          select: {
+            StandardMH: true,
+            ProcessActualEndDate: true,
+          },
+        },
+      },
+    });
+
+    const results: any[] = [];
+
+    for (const unit of units) {
+      const standardMH = unit.vwProcess.reduce(
+        (sum, proc) => sum + (proc.StandardMH ? proc.StandardMH.toNumber() : 0),
+        0
+      );
+
+      const completedStandardMH = unit.vwProcess.reduce((sum, proc) => {
+        if (proc.ProcessActualEndDate !== null) {
+          return sum + (proc.StandardMH ? proc.StandardMH.toNumber() : 0);
+        }
+        return sum;
+      }, 0);
+
+      const progressPercent =
+        standardMH === 0
+          ? 0
+          : Number(((completedStandardMH / standardMH) * 100).toFixed(2));
+
+      const mhUtil =
+        standardMH === 0
+          ? 0
+          : (Number(unit.UnitActualHoursCompleted ?? 0) / standardMH) * 100;
+
+      const mhDiscrepancy = Number((mhUtil - progressPercent).toFixed(2));
+
+      // Hanya proses jika discrepancy > 0
+      if (mhDiscrepancy <= 0) continue;
+
+      const referenceNumber = unit.vwPRO?.Number ?? unit.UnitSerialNumber;
+      if (!referenceNumber) continue;
+
+      const descriptionText = `Auto-created from Unit Serial: ${unit.UnitSerialNumber} | MH Discrepancy: ${mhDiscrepancy}%`;
+
+      const existingIncident = await Incident.findFirst({
+        where: {
+          UnitSerialNumber: unit.UnitSerialNumber,
+          IncidentType: "Manhour Discrepancy",
+        },
+      });
+
+      if (existingIncident) {
+        // Ambil discrepancy lama dari Description (pakai regex untuk aman)
+        const match = existingIncident.Description?.match(
+          /MH Discrepancy: (-?\d+(\.\d+)?)%/
+        );
+        const prevDiscrepancy = match ? Number(match[1]) : null;
+
+        // Cek apakah discrepancy sama
+        const isSameDiscrepancy = prevDiscrepancy === mhDiscrepancy;
+
+        // Kalau sama, skip update
+        if (isSameDiscrepancy) continue;
+
+        // let userEmailDate = new Date(currentWIB);
+        // userEmailDate.setDate(userEmailDate.getDate() + 1);
+
+        const updateData: any = {
+          Description: descriptionText,
+        };
+
+        if (mhDiscrepancy > 10) {
+          updateData.UserEmailDate = currentWIB;
+        }
+
+        await Incident.update({
+          where: { ID: existingIncident.ID },
+          data: updateData,
+        });
+
+        // console.log(
+        //   `[${new Date().toLocaleString()}] Incident EXISTING (Unit Serial ${unit.UnitSerialNumber}) diupdate. MH Discrepancy berubah menjadi: ${mhDiscrepancy}%`
+        // );
+
+        results.push({ ...existingIncident, updated: true });
+        continue;
+      }
+
+      let baEmailDate = new Date(currentWIB);
+      baEmailDate.setDate(currentWIB.getDate() + 1);
+
+      // Kalau belum ada, create incident baru
+      const newIncident = await Incident.create({
+        data: {
+          UnitSerialNumber: unit.UnitSerialNumber,
+          IncidentType: "Manhour Discrepancy",
+          Description: descriptionText,
+          PICBA: 1,
+          BAEmailDate: baEmailDate,
+          BAEmailStatus: "-",
+          PICUser: 11,
+          UserEmailDate: mhDiscrepancy > 10 ? currentWIB : null,
+          UserEmailStatus: "-",
+          OpenDate: currentWIB,
+          CloseDate: null,
+          Status: "-",
+        },
+      });
+
+      console.log(
+        `[${new Date().toLocaleString()}] Incident NEW dibuat untuk Unit Serial ${
+          unit.UnitSerialNumber
+        }. MH Discrepancy: ${mhDiscrepancy}%`
+      );
+
+      results.push(newIncident);
+    }
+  } catch (error) {
+    console.error(
+      "Error mendeteksi dan memproses incident manhour discrepancy:",
+      error
+    );
   }
 };

@@ -8,22 +8,22 @@ const prisma = new SatriaClient();
 // Model User
 export const User = {
   // Mendapatkan pengguna berdasarkan ID
-  findUnique: prisma.users.findUnique,
+  findUnique: prisma.ms_users.findUnique,
 
   // Mendapatkan semua pengguna
-  findMany: prisma.users.findMany,
+  findMany: prisma.ms_users.findMany,
 
   // Membuat pengguna baru
-  create: prisma.users.create,
+  create: prisma.ms_users.create,
 
   // Memperbarui pengguna
-  update: prisma.users.update,
+  update: prisma.ms_users.update,
 
   // Menghapus pengguna
-  delete: prisma.users.delete,
+  delete: prisma.ms_users.delete,
 
-  // Fungsi lain yang terkait dengan model users
-  count: prisma.users.count,
-  findFirst: prisma.users.findFirst,
-  upsert: prisma.users.upsert,
+  // Fungsi lain yang terkait dengan model ms_users
+  count: prisma.ms_users.count,
+  findFirst: prisma.ms_users.findFirst,
+  upsert: prisma.ms_users.upsert,
 };

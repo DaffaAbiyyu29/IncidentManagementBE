@@ -17,12 +17,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 5.22.0
- * Query Engine version: 173f8d54f8d52e692c7e27e72a88314ec7aeff60
+ * Prisma Client JS version: 6.6.0
+ * Query Engine version: f676762280b54cd07c770017ed3711ddde35f37a
  */
 Prisma.prismaVersion = {
-  client: "5.22.0",
-  engine: "173f8d54f8d52e692c7e27e72a88314ec7aeff60"
+  client: "6.6.0",
+  engine: "f676762280b54cd07c770017ed3711ddde35f37a"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -48,11 +48,6 @@ In case this error is unexpected for you, please report it in https://pris.ly/pr
 Prisma.PrismaClientValidationError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientValidationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
-In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
-)}
-Prisma.NotFoundError = () => {
-  const runtimeName = getRuntime().prettyName;
-  throw new Error(`NotFoundError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
 Prisma.Decimal = Decimal
@@ -167,6 +162,134 @@ exports.Prisma.ProcessAssignScalarFieldEnum = {
   remark: 'remark'
 };
 
+exports.Prisma.VwPRO_2ScalarFieldEnum = {
+  ID: 'ID',
+  Number: 'Number',
+  ProductID: 'ProductID',
+  Quantity: 'Quantity',
+  DueDate: 'DueDate',
+  Created: 'Created',
+  CreatedBy: 'CreatedBy',
+  LastModified: 'LastModified',
+  LastModifiedBy: 'LastModifiedBy'
+};
+
+exports.Prisma.VwProcessScalarFieldEnum = {
+  ProcessID: 'ProcessID',
+  UnitID: 'UnitID',
+  ProcessStatus: 'ProcessStatus',
+  ProcessPlanStartDate: 'ProcessPlanStartDate',
+  ProcessPlanEndDate: 'ProcessPlanEndDate',
+  ProcessPlanDuration: 'ProcessPlanDuration',
+  ProcessActualStartDate: 'ProcessActualStartDate',
+  ProcessActualEndDate: 'ProcessActualEndDate',
+  ProcessActualDuration: 'ProcessActualDuration',
+  MasterProcessName: 'MasterProcessName',
+  StandardMH: 'StandardMH',
+  ProcessGroupName: 'ProcessGroupName',
+  ProcessDelayInDay: 'ProcessDelayInDay',
+  ProcessOrder: 'ProcessOrder',
+  LastModified: 'LastModified',
+  MasterProcessID: 'MasterProcessID'
+};
+
+exports.Prisma.VwProcessActivityScalarFieldEnum = {
+  atasan: 'atasan',
+  EmployeeNumber: 'EmployeeNumber',
+  ActivityDateTime: 'ActivityDateTime',
+  ProcessActivityID: 'ProcessActivityID',
+  ProcessAssignID: 'ProcessAssignID',
+  ProcessActivityName: 'ProcessActivityName',
+  ProcessActivityStatus: 'ProcessActivityStatus',
+  ProcessActivityReasonPause: 'ProcessActivityReasonPause',
+  ActualHoursNonProductive: 'ActualHoursNonProductive',
+  ProcessActivityActualHours: 'ProcessActivityActualHours',
+  ProcessActivityDateTime: 'ProcessActivityDateTime',
+  LastModifiedBy: 'LastModifiedBy',
+  LastModified: 'LastModified'
+};
+
+exports.Prisma.VwProcessAssign2AllScalarFieldEnum = {
+  ID: 'ID',
+  ProcessID: 'ProcessID',
+  UnitID: 'UnitID',
+  LeaderName: 'LeaderName',
+  OperatorName: 'OperatorName',
+  NRP: 'NRP',
+  TglAssign: 'TglAssign',
+  ProcessassignStatus: 'ProcessassignStatus',
+  Startassign: 'Startassign',
+  Stopassign: 'Stopassign',
+  ProcessAssignType: 'ProcessAssignType',
+  LastModified: 'LastModified',
+  lastStart: 'lastStart',
+  lastStop: 'lastStop',
+  remark: 'remark',
+  IsActive: 'IsActive'
+};
+
+exports.Prisma.VwProcessGroupScalarFieldEnum = {
+  UnitID: 'UnitID',
+  ProcessGroupNameSort: 'ProcessGroupNameSort',
+  ProcessGroupName: 'ProcessGroupName',
+  ProcessGroupPlanStartDate: 'ProcessGroupPlanStartDate',
+  ProcessGroupPlanEndDate: 'ProcessGroupPlanEndDate',
+  ProcessGroupPlanDuration: 'ProcessGroupPlanDuration',
+  ProcessGroupActualStartDate: 'ProcessGroupActualStartDate',
+  ProcessGroupActualEndDate: 'ProcessGroupActualEndDate',
+  ProcessGroupActualDuration: 'ProcessGroupActualDuration',
+  ProcessGroupDelayInDay: 'ProcessGroupDelayInDay',
+  LastModified: 'LastModified'
+};
+
+exports.Prisma.VwProductScalarFieldEnum = {
+  ProductID: 'ProductID',
+  ProductGroupID: 'ProductGroupID',
+  ProductName: 'ProductName',
+  ProductPN: 'ProductPN',
+  ProductTotalDay: 'ProductTotalDay',
+  ProductSubGroupName: 'ProductSubGroupName',
+  ProductSubGroupSAPCode: 'ProductSubGroupSAPCode',
+  ProductStandardHours: 'ProductStandardHours',
+  LastModified: 'LastModified'
+};
+
+exports.Prisma.VwUnitScalarFieldEnum = {
+  UnitID: 'UnitID',
+  PROID: 'PROID',
+  ProductID: 'ProductID',
+  UnitSerialNumber: 'UnitSerialNumber',
+  UnitChasisNumber: 'UnitChasisNumber',
+  UnitDueDate: 'UnitDueDate',
+  UnitPlanStartDate: 'UnitPlanStartDate',
+  UnitPlanEndDate: 'UnitPlanEndDate',
+  UnitPlanDuration: 'UnitPlanDuration',
+  UnitActualStartDate: 'UnitActualStartDate',
+  UnitActualEndDate: 'UnitActualEndDate',
+  UnitActualDuration: 'UnitActualDuration',
+  Unit_Status: 'Unit_Status',
+  UnitMPSDueDate: 'UnitMPSDueDate',
+  UnitActualDeliveryDate: 'UnitActualDeliveryDate',
+  UnitActualHoursCompleted: 'UnitActualHoursCompleted',
+  UnitDelayInDay: 'UnitDelayInDay',
+  SOUnitprice: 'SOUnitprice',
+  SalesOrderID: 'SalesOrderID',
+  UnitProcessLastStatus: 'UnitProcessLastStatus',
+  UnitProcessLastActualStartDate: 'UnitProcessLastActualStartDate',
+  UnitProcessLastPlanStartDate: 'UnitProcessLastPlanStartDate',
+  IsHold: 'IsHold',
+  LastModified: 'LastModified'
+};
+
+exports.Prisma.VwProductGroupScalarFieldEnum = {
+  ProductGroupID: 'ProductGroupID',
+  ProductGroupName: 'ProductGroupName',
+  ProductGroupDescription: 'ProductGroupDescription',
+  ProductGroupCapacity: 'ProductGroupCapacity',
+  ProductGroupStartMonth: 'ProductGroupStartMonth',
+  LastModified: 'LastModified'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -181,7 +304,15 @@ exports.Prisma.NullsOrder = {
 exports.Prisma.ModelName = {
   Process: 'Process',
   ProcessActivity: 'ProcessActivity',
-  ProcessAssign: 'ProcessAssign'
+  ProcessAssign: 'ProcessAssign',
+  vwPRO_2: 'vwPRO_2',
+  vwProcess: 'vwProcess',
+  vwProcessActivity: 'vwProcessActivity',
+  vwProcessAssign2All: 'vwProcessAssign2All',
+  vwProcessGroup: 'vwProcessGroup',
+  vwProduct: 'vwProduct',
+  vwUnit: 'vwUnit',
+  vwProductGroup: 'vwProductGroup'
 };
 
 /**
@@ -201,7 +332,7 @@ class PrismaClient {
         } else {
           message = 'PrismaClient is unable to run in this browser environment, or has been bundled for the browser (running in `' + runtime.prettyName + '`).'
         }
-        
+
         message += `
 If this is unexpected, please open an issue: https://pris.ly/prisma-prisma-bug-report`
 

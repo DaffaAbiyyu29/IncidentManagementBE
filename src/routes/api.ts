@@ -8,6 +8,10 @@ import * as ProcessAssignController from "../controllers/cms/ProcessAssignContro
 import * as AllPoController from "../controllers/cms/AllPoController";
 import * as ScheduleRecomendation from "../controllers/cms/ScheduleRecomendationController";
 import * as Email from "../controllers/cms/EmailController";
+import * as User from "../controllers/cms/ms_users";
+import * as Chart from "../controllers/cms/ChartController";
+import * as Incident from "../controllers/cms/trx_IncidentController";
+import * as PICA from "../controllers/cms/PICAController";
 import { authenticateJWT } from "../middleware/auth";
 import { Process } from "../models/Table/Satria/Process";
 
@@ -53,56 +57,40 @@ const router = express.Router();
 // );
 
 // -----------------------------------------------------------------------------------------  MANHOUR UTILIZATION
-router.get("/process-mh", async (req: Request, res: Response) => {
-  await ProcessController.getAllProcessMH(req, res);
+router.get("/process-unit", async (req: Request, res: Response) => {
+  await ProcessController.getAllDataProcessUnit(req, res);
 });
 
-router.get("/process-mh-unit", async (req: Request, res: Response) => {
-  await ProcessController.getAllDataUnitMH(req, res);
-});
-
-router.get("/process-mh-unit-count", async (req: Request, res: Response) => {
-  await ProcessController.getAllDataUnitMHCountByYear(req, res);
-});
-
-router.get("/process-mh-unit-process", async (req: Request, res: Response) => {
-  await ProcessController.getAllDataUnitMHProcess(req, res);
+router.get("/detail-process-unit", async (req: Request, res: Response) => {
+  await ProcessController.getDataDetailProcessUnit(req, res);
 });
 
 router.get(
-  "/process-mh-unit-process-assign",
+  "/detail-process-assign-unit",
   async (req: Request, res: Response) => {
-    await ProcessController.getAllDataUnitMHProcessAssign(req, res);
+    await ProcessController.getDataProcessAssign(req, res);
   }
 );
 
 router.get(
-  "/process-mh-unit-process-activity",
+  "/detail-process-activity-unit",
   async (req: Request, res: Response) => {
-    await ProcessController.getAllDataUnitMHProcessActivity(req, res);
+    await ProcessController.getDataProcessActivity(req, res);
   }
 );
 
 // -----------------------------------------------------------------------------------------  ACCOUNT RECEIVABLE
-router.get("/pending-ar", async (req: Request, res: Response) => {
+router.get("/data-ar", async (req: Request, res: Response) => {
   await PendingARController.getAllFBL5N(req, res);
 });
 
-router.get("/pending-ar-count", async (req: Request, res: Response) => {
-  await PendingARController.getFBL5NCountByYear(req, res);
-});
-
-router.get("/pending-ar-incident", async (req: Request, res: Response) => {
-  await PendingARController.getAllFBL5NIncident(req, res);
-});
+// router.get("/pending-ar-incident", async (req: Request, res: Response) => {
+//   await PendingARController.getAllFBL5NIncident(req, res);
+// });
 
 // -----------------------------------------------------------------------------------------  PENDING BILLING
-router.get("/pending-billing", async (req: Request, res: Response) => {
+router.get("/data-billing", async (req: Request, res: Response) => {
   await PendingBillingController.getAllVF04(req, res);
-});
-
-router.get("/pending-billing-count", async (req: Request, res: Response) => {
-  await PendingBillingController.getVF04CountByYear(req, res);
 });
 
 // -----------------------------------------------------------------------------------------  DELAY OPERATION
@@ -110,35 +98,9 @@ router.get("/schedule-recommendation", async (req: Request, res: Response) => {
   await ScheduleRecomendation.getAllScheduleRecomendation(req, res);
 });
 
-router.get(
-  "/schedule-recommendation-count",
-  async (req: Request, res: Response) => {
-    await ScheduleRecomendation.getScheduleRecomendationCountByYear(req, res);
-  }
-);
-
-// -----------------------------------------------------------------------------------------  PROCESS
-router.get("/process", async (req: Request, res: Response) => {
-  await ProcessController.getAllProcess(req, res);
-});
-
-// -----------------------------------------------------------------------------------------  PROCESS ACTIVITY
-router.get("/process-activity", async (req: Request, res: Response) => {
-  await ProcessActivityController.getAllProcessActivity(req, res);
-});
-
-// -----------------------------------------------------------------------------------------  PROCESS ASSIGN
-router.get("/process-assign", async (req: Request, res: Response) => {
-  await ProcessAssignController.getAllProcessAssign(req, res);
-});
-
 // -----------------------------------------------------------------------------------------  VENDOR PERFORMANCE
 router.get("/vendor-performance", async (req: Request, res: Response) => {
   await AllPoController.getAllVendor(req, res);
-});
-
-router.get("/vendor-performance-count", async (req: Request, res: Response) => {
-  await AllPoController.getVendorCountByYear(req, res);
 });
 
 // -----------------------------------------------------------------------------------------  SUBCONT PERFORMANCE
@@ -146,9 +108,76 @@ router.get("/subcont-performance", async (req: Request, res: Response) => {
   await AllPoController.getAllSubcont(req, res);
 });
 
-// -----------------------------------------------------------------------------------------  SEND EMAIL
-router.post("/sendEmail", async (req: Request, res: Response) => {
-  await Email.sendEmail(req, res);
+// -----------------------------------------------------------------------------------------  PIC
+router.get("/user", async (req: Request, res: Response) => {
+  await User.getAllUser(req, res);
 });
+
+router.post("/pic", async (req: Request, res: Response) => {
+  await User.createUser(req, res);
+});
+
+router.put("/pic", async (req: Request, res: Response) => {
+  await User.updateUser(req, res);
+});
+
+router.delete("/pic", async (req: Request, res: Response) => {
+  await User.deleteUser(req, res);
+});
+
+// -----------------------------------------------------------------------------------------  PIC
+router.get("/incident", async (req: Request, res: Response) => {
+  await Incident.getAllIncidents(req, res);
+});
+
+router.post("/incident", async (req: Request, res: Response) => {
+  await Incident.createIncident(req, res);
+});
+
+router.get("/pica/:IncidentID", async (req: Request, res: Response) => {
+  await PICA.getPICA(req, res);
+});
+
+router.post("/pica", async (req: Request, res: Response) => {
+  await PICA.createPICA(req, res);
+});
+
+// router.post("/detail-pica", async (req: Request, res: Response) => {
+//   await PICA.createDetailPICA(req, res);
+// });
+
+router.post("/flag", async (req: Request, res: Response) => {
+  await Incident.flagIncident(req, res);
+});
+
+router.get("/incident/mark-read", async (req: Request, res: Response) => {
+  await Incident.markEmailAsRead(req, res);
+});
+
+router.get(
+  "/notifications",
+  authenticateJWT,
+  async (req: Request, res: Response) => {
+    await Incident.getAllNotifications(req, res);
+  }
+);
+
+// router.get("/check-incident-ba", async (req: Request, res: Response) => {
+//   await Incident.getIncidentsWithBAEmailDue(req, res);
+// });
+
+// router.get("/check-incident-user", async (req: Request, res: Response) => {
+//   await Incident.getIncidentsWithUserEmailDue(req, res);
+// });
+
+// -----------------------------------------------------------------------------------------  CHART
+router.get("/chart", async (req: Request, res: Response) => {
+  await Chart.chartIncident(req, res);
+});
+
+// -----------------------------------------------------------------------------------------  SEND EMAIL
+// router.post("/sendEmail", async (req: Request, res: Response) => {
+//   await Email.sendEmail(req, res);
+// });
 
 export default router;

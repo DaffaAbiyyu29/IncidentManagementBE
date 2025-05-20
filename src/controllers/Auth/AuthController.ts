@@ -1,7 +1,7 @@
 // src/controllers/Auth/AuthController.ts
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { User } from "../../models/Table/Satria/User";
+import { Users } from "../../models/Table/Satria/ms_users";
 import bcrypt from "bcryptjs";
 import { getCurrentWIBDate } from "../../helpers/timeHelper";
 import { generateGUID } from "../../helpers/generateGuid";
@@ -22,11 +22,12 @@ export const registerUser = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { name, username, password } = req.body;
+  const { name, username, password, divisi, departemen, email, role } =
+    req.body;
 
   try {
     // Cek apakah username sudah ada di database
-    const existingUser = await User.findUnique({
+    const existingUser = await Users.findUnique({
       where: {
         username,
       },
@@ -40,12 +41,15 @@ export const registerUser = async (
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert user baru ke dalam database
-    const newUser = await User.create({
+    const newUser = await Users.create({
       data: {
-        guid: generateGUID(),
         name,
         username,
         password: hashedPassword,
+        divisi,
+        departemen,
+        email,
+        role,
         created_at: getCurrentWIBDate(),
         updated_at: getCurrentWIBDate(),
       },
@@ -66,13 +70,18 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
   try {
     // Cari user berdasarkan username
-    const user = await User.findUnique({
+    const user = await Users.findUnique({
       where: { username },
     });
 
     // Jika user tidak ditemukan
     if (!user) {
       res.status(401).json({ success: false, message: "Invalid credentials" });
+      return;
+    }
+
+    if (typeof user.password !== "string") {
+      res.status(400).json({ message: "Password tidak valid." });
       return;
     }
 
@@ -87,7 +96,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      { name: user.name, role: user.role, departemen: user.departemen },
       JWT_SECRET,
       { expiresIn: "24h" } // Set token expire time
     );

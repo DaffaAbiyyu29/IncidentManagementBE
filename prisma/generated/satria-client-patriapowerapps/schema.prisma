@@ -59,7 +59,7 @@ model ProcessAssign {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vwPRO_2 {
-  ID             Int
+  ID             Int      @unique
   Number         String   @satria.VarChar(100)
   ProductID      Int
   Quantity       Int
@@ -69,12 +69,12 @@ model vwPRO_2 {
   LastModified   DateTime @satria.DateTime
   LastModifiedBy String   @satria.VarChar(100)
 
-  @@ignore
+  vwUnit vwUnit[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vwProcess {
-  ProcessID              Int
+  ProcessID              Int       @unique
   UnitID                 Int
   ProcessStatus          String?   @satria.VarChar(8)
   ProcessPlanStartDate   DateTime? @satria.Date
@@ -91,7 +91,9 @@ model vwProcess {
   LastModified           DateTime  @satria.DateTime
   MasterProcessID        Int
 
-  @@ignore
+  vwUnit vwUnit @relation(fields: [UnitID], references: [UnitID], onUpdate: NoAction, map: "fk_unit")
+
+  vwProcessAssign vwProcessAssign2All[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -99,7 +101,7 @@ model vwProcessActivity {
   atasan                     String   @satria.VarChar(100)
   EmployeeNumber             String?  @satria.VarChar(50)
   ActivityDateTime           DateTime @satria.DateTime
-  ProcessActivityID          Int
+  ProcessActivityID          Int      @unique
   ProcessAssignID            Int
   ProcessActivityName        String   @satria.VarChar(100)
   ProcessActivityStatus      String?  @satria.VarChar(17)
@@ -110,12 +112,12 @@ model vwProcessActivity {
   LastModifiedBy             String   @satria.VarChar(100)
   LastModified               DateTime @satria.DateTime
 
-  @@ignore
+  vwProcessAssign vwProcessAssign2All @relation(fields: [ProcessAssignID], references: [ID], onUpdate: NoAction, map: "fk_vwProcessAssign_activity")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vwProcessAssign2All {
-  ID                  Int
+  ID                  Int       @unique
   ProcessID           Int
   UnitID              Int?
   LeaderName          String    @satria.VarChar(100)
@@ -132,12 +134,13 @@ model vwProcessAssign2All {
   remark              String?   @satria.VarChar(255)
   IsActive            Boolean?
 
-  @@ignore
+  vwProcess         vwProcess           @relation(fields: [ProcessID], references: [ProcessID], onUpdate: NoAction, map: "fk_vwProcess_assign")
+  vwProcessActivity vwProcessActivity[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vwProcessGroup {
-  UnitID                      Int
+  UnitID                      Int       @unique
   ProcessGroupNameSort        Int?
   ProcessGroupName            String?   @satria.VarChar(100)
   ProcessGroupPlanStartDate   DateTime? @satria.Date
@@ -148,13 +151,11 @@ model vwProcessGroup {
   ProcessGroupActualDuration  Int?
   ProcessGroupDelayInDay      Int?
   LastModified                DateTime? @satria.DateTime
-
-  @@ignore
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vwProduct {
-  ProductID              Int
+  ProductID              Int      @unique
   ProductGroupID         Int
   ProductName            String   @satria.VarChar(100)
   ProductPN              String   @satria.VarChar(100)
@@ -164,12 +165,14 @@ model vwProduct {
   ProductStandardHours   Decimal? @satria.Decimal(38, 4)
   LastModified           DateTime @satria.DateTime
 
-  @@ignore
+  vwProductGroup vwProductGroup @relation(fields: [ProductGroupID], references: [ProductGroupID], onUpdate: NoAction, map: "fk_vwProductGroup")
+
+  vwUnit vwUnit[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vwUnit {
-  UnitID                         Int
+  UnitID                         Int       @unique
   PROID                          Int
   ProductID                      Int
   UnitSerialNumber               String    @satria.VarChar(100)
@@ -194,19 +197,22 @@ model vwUnit {
   IsHold                         Boolean
   LastModified                   DateTime  @satria.DateTime
 
-  @@ignore
+  vwPRO     vwPRO_2   @relation(fields: [PROID], references: [ID], onUpdate: NoAction, map: "fk_pro")
+  vwProduct vwProduct @relation(fields: [ProductID], references: [ProductID], onUpdate: NoAction, map: "fk_product")
+
+  vwProcess vwProcess[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model vwProductGroup {
-  ProductGroupID          Int
+  ProductGroupID          Int       @unique
   ProductGroupName        String    @satria.VarChar(100)
   ProductGroupDescription String    @satria.VarChar(Max)
   ProductGroupCapacity    Int?
   ProductGroupStartMonth  DateTime? @satria.DateTime
   LastModified            DateTime  @satria.DateTime
 
-  @@ignore
+  vwProduct vwProduct[]
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
